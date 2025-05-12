@@ -490,7 +490,7 @@ export function LayeredImageGenerator() {
                   {/* Dropdown content */}
                   <div 
                     id={`dropdown-${layer.name}`} 
-                    className={`${openDropdown === layer.name ? 'block' : 'hidden'} absolute z-20 mt-2 w-full bg-transparent rounded-md shadow-lg border border-neutral-200`}
+                    className={`${openDropdown === layer.name ? 'block' : 'hidden'} absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border border-neutral-200`}
                   >
                     <div className="max-h-60 overflow-y-auto p-3">
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -505,7 +505,7 @@ export function LayeredImageGenerator() {
                               onChange={() => handleSelectLayer(layer.name, index)}
                             />
                             <div className="border-2 border-transparent hover:border-primary rounded-md overflow-hidden transition-all p-1">
-                              <div className="aspect-square bg-transparent rounded flex items-center justify-center">
+                              <div className="aspect-square bg-white rounded flex items-center justify-center">
                                 <img 
                                   src={image.url} 
                                   alt={image.label}
@@ -522,7 +522,7 @@ export function LayeredImageGenerator() {
                 
                 {/* Selected thumbnail */}
                 <div className="mt-2 p-2 flex justify-center border border-primary/20 rounded-md bg-primary/5">
-                  <div className="w-16 h-16 bg-transparent rounded shadow-sm flex items-center justify-center">
+                  <div className="w-16 h-16 bg-white rounded shadow-sm flex items-center justify-center">
                     {selectedIndexes[layer.name] !== undefined ? (
                       <img 
                         src={layer.images[selectedIndexes[layer.name]]?.url}
