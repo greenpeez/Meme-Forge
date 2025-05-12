@@ -398,8 +398,7 @@ export function LayeredImageGenerator() {
   return (
     <div className="layered-image-generator mx-auto p-4 max-w-7xl">
       <header className="mb-6 text-center">
-        <h1 className="text-3xl font-bold text-secondary mb-2">Bani Meme Generator</h1>
-        <p className="text-neutral-700 text-lg">Mix-n-match layers to build your custom Bani PFP!</p>
+        <h1 className="text-3xl font-bold text-secondary">Bani Meme Generator</h1>
       </header>
 
       <div className="flex flex-col space-y-6">
