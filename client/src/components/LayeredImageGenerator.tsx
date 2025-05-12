@@ -405,45 +405,50 @@ export function LayeredImageGenerator() {
     
     // Helper to check which resize handle contains a point
     const getCornerAtPoint = (x: number, y: number, layer: LayerObject): Corner => {
-      const handleSize = 20; // Larger for easier grabbing
+      const handleSize = 40; // Much larger for easier grabbing
+      const buffer = 10; // Extra buffer zone for easier targeting
       
       // Check top-left corner
       if (
-        x >= layer.x &&
-        x <= layer.x + handleSize &&
-        y >= layer.y &&
-        y <= layer.y + handleSize
+        x >= layer.x - buffer &&
+        x <= layer.x + handleSize + buffer &&
+        y >= layer.y - buffer &&
+        y <= layer.y + handleSize + buffer
       ) {
+        console.log("Detected top-left corner resize handle");
         return Corner.TopLeft;
       }
       
       // Check top-right corner
       if (
-        x >= layer.x + layer.width - handleSize &&
-        x <= layer.x + layer.width &&
-        y >= layer.y &&
-        y <= layer.y + handleSize
+        x >= layer.x + layer.width - handleSize - buffer &&
+        x <= layer.x + layer.width + buffer &&
+        y >= layer.y - buffer &&
+        y <= layer.y + handleSize + buffer
       ) {
+        console.log("Detected top-right corner resize handle");
         return Corner.TopRight;
       }
       
       // Check bottom-left corner
       if (
-        x >= layer.x &&
-        x <= layer.x + handleSize &&
-        y >= layer.y + layer.height - handleSize &&
-        y <= layer.y + layer.height
+        x >= layer.x - buffer &&
+        x <= layer.x + handleSize + buffer &&
+        y >= layer.y + layer.height - handleSize - buffer &&
+        y <= layer.y + layer.height + buffer
       ) {
+        console.log("Detected bottom-left corner resize handle");
         return Corner.BottomLeft;
       }
       
       // Check bottom-right corner
       if (
-        x >= layer.x + layer.width - handleSize &&
-        x <= layer.x + layer.width &&
-        y >= layer.y + layer.height - handleSize &&
-        y <= layer.y + layer.height
+        x >= layer.x + layer.width - handleSize - buffer &&
+        x <= layer.x + layer.width + buffer &&
+        y >= layer.y + layer.height - handleSize - buffer &&
+        y <= layer.y + layer.height + buffer
       ) {
+        console.log("Detected bottom-right corner resize handle");
         return Corner.BottomRight;
       }
       
