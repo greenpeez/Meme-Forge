@@ -252,16 +252,35 @@ export function LayeredImageGenerator() {
         // Keep existing position and size
         updatedLayerObjects[layerName] = existingLayer;
       } else {
-        // Create new layer object centered on canvas
-        const x = (canvas.width - cachedImage.width) / 2;
-        const y = (canvas.height - cachedImage.height) / 2;
+        // Auto-fit the image to the canvas while maintaining aspect ratio
+        let width, height;
+        const maxDimension = Math.min(canvas.width, canvas.height) * 0.9; // Use 90% of canvas to leave some margin
+        
+        const aspectRatio = cachedImage.width / cachedImage.height;
+        
+        // Calculate dimensions to fit in canvas (maintaining aspect ratio)
+        if (aspectRatio >= 1) {
+          // Landscape or square image
+          width = Math.min(maxDimension, cachedImage.width);
+          height = width / aspectRatio;
+        } else {
+          // Portrait image
+          height = Math.min(maxDimension, cachedImage.height);
+          width = height * aspectRatio;
+        }
+        
+        console.log("Auto-fitting image with dimensions:", cachedImage.width, "x", cachedImage.height, "to", Math.round(width), "x", Math.round(height));
+        
+        // Center the image on canvas
+        const x = (canvas.width - width) / 2;
+        const y = (canvas.height - height) / 2;
         
         updatedLayerObjects[layerName] = {
           url: imageItem.url,
           x,
           y,
-          width: cachedImage.width,
-          height: cachedImage.height,
+          width: width,
+          height: height,
           originalWidth: cachedImage.width,
           originalHeight: cachedImage.height
         };
