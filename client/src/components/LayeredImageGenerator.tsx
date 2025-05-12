@@ -451,9 +451,9 @@ export function LayeredImageGenerator() {
                       'bg-primary/20 text-secondary border-2 border-dashed border-primary/30'
                     } rounded-md shadow hover:bg-primary/90 hover:text-primary-foreground transition-colors`}
                   >
-                    <span className="font-medium">{layer.name}</span>
+                    <span className="font-medium text-black">Add an image</span>
                     <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                     </svg>
                   </button>
                   
