@@ -186,14 +186,14 @@ export function LayeredImageGenerator() {
     // Do not pre-select any images
     setSelectedImages(initialSelected);
   }, []);
-  
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (openDropdown) {
         const dropdownEl = document.getElementById(`dropdown-${openDropdown}`);
         const buttonEl = document.getElementById(`button-${openDropdown}`);
-        
+
         if (dropdownEl && 
             !dropdownEl.contains(event.target as Node) && 
             buttonEl && 
@@ -202,7 +202,7 @@ export function LayeredImageGenerator() {
         }
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -218,16 +218,16 @@ export function LayeredImageGenerator() {
       const rect = canvas.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
-      
+
       // First check if we're on a resize handle
       let foundResizeHandle = false;
-      
+
       for (const layerName in resizableImages) {
         const img = resizableImages[layerName];
-        
+
         // Check each corner for resize handles (using a small area around each corner)
         const handleSize = 15;
-        
+
         // Bottom-right corner (primary resize handle)
         if (
           mouseX >= img.x + img.width - handleSize && 
@@ -248,13 +248,13 @@ export function LayeredImageGenerator() {
           break;
         }
       }
-      
+
       // If not resizing, check if we're dragging an image
       if (!foundResizeHandle) {
         // Check if we're clicking on an image to drag
         for (const layerName in resizableImages) {
           const img = resizableImages[layerName];
-          
+
           if (
             mouseX >= img.x && 
             mouseX <= img.x + img.width && 
@@ -274,19 +274,19 @@ export function LayeredImageGenerator() {
         }
       }
     };
-    
+
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
-      
+
       // Update cursor based on position
       let overResizeHandle = false;
-      
+
       for (const layerName in resizableImages) {
         const img = resizableImages[layerName];
         const handleSize = 15;
-        
+
         if (
           mouseX >= img.x + img.width - handleSize && 
           mouseX <= img.x + img.width + handleSize && 
@@ -298,13 +298,13 @@ export function LayeredImageGenerator() {
           break;
         }
       }
-      
+
       if (!overResizeHandle) {
         let overDraggable = false;
-        
+
         for (const layerName in resizableImages) {
           const img = resizableImages[layerName];
-          
+
           if (
             mouseX >= img.x && 
             mouseX <= img.x + img.width && 
@@ -316,12 +316,12 @@ export function LayeredImageGenerator() {
             break;
           }
         }
-        
+
         if (!overDraggable) {
           canvas.style.cursor = 'default';
         }
       }
-      
+
       // Handle resizing
       if (activeResizeHandle) {
         const img = resizableImages[activeResizeHandle];
@@ -329,7 +329,7 @@ export function LayeredImageGenerator() {
           // Calculate new width and height based on mouse movement
           let newWidth = Math.max(50, img.width + (mouseX - img.resizeStartX));
           let newHeight = Math.max(50, img.height + (mouseY - img.resizeStartY));
-          
+
           // Maintain aspect ratio if shift key is pressed
           if (e.shiftKey) {
             const aspectRatio = img.originalWidth / img.originalHeight;
@@ -339,7 +339,7 @@ export function LayeredImageGenerator() {
               newHeight = newWidth / aspectRatio;
             }
           }
-          
+
           const updatedImages = { ...resizableImages };
           updatedImages[activeResizeHandle] = {
             ...img,
@@ -354,17 +354,17 @@ export function LayeredImageGenerator() {
       } else {
         // Handle dragging
         let isDragging = false;
-        
+
         for (const layerName in resizableImages) {
           const img = resizableImages[layerName];
-          
+
           if (img.isDragging) {
             isDragging = true;
-            
+
             // Calculate new position based on mouse movement and drag offset
             const newX = mouseX - img.dragOffsetX;
             const newY = mouseY - img.dragOffsetY;
-            
+
             const updatedImages = { ...resizableImages };
             updatedImages[layerName] = {
               ...img,
@@ -378,15 +378,15 @@ export function LayeredImageGenerator() {
         }
       }
     };
-    
+
     const handleMouseUp = () => {
       // Reset dragging and resizing states
       let needsUpdate = false;
       const updatedImages = { ...resizableImages };
-      
+
       for (const layerName in resizableImages) {
         const img = resizableImages[layerName];
-        
+
         if (img.isDragging || img.isResizing) {
           needsUpdate = true;
           updatedImages[layerName] = {
@@ -396,21 +396,21 @@ export function LayeredImageGenerator() {
           };
         }
       }
-      
+
       if (needsUpdate) {
         setResizableImages(updatedImages);
       }
-      
+
       if (activeResizeHandle) {
         setActiveResizeHandle(null);
       }
     };
-    
+
     // Add event listeners
     canvas.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
-    
+
     // Remove event listeners on cleanup
     return () => {
       canvas.removeEventListener('mousedown', handleMouseDown);
@@ -422,43 +422,42 @@ export function LayeredImageGenerator() {
   // Function to redraw the canvas
   const redrawCanvas = () => {
     if (!canvasRef.current) return;
-    
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    
+
     if (!ctx) return;
-    
+
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     // Check if any images are selected
     const hasSelectedImages = Object.keys(resizableImages).length > 0;
-    
+
     if (!hasSelectedImages && !isLoading) {
       // Draw prompt text when no images are selected
       ctx.fillStyle = '#000000';
       ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('Select images from the panels below', canvas.width / 2, canvas.height / 2 - 30);
-      
-      // Add arrow icon
+      ctx.fillText('Select an image', canvas.width / 2, canvas.height / 2 - 30);
+
+      // Add plus icon
       ctx.fillStyle = '#000000';
       ctx.beginPath();
-      const arrowSize = 30;
-      const arrowX = canvas.width / 2;
-      const arrowY = canvas.height / 2 + 20;
-      
-      // Draw arrow shape
-      ctx.moveTo(arrowX, arrowY + arrowSize);
-      ctx.lineTo(arrowX - arrowSize / 2, arrowY);
-      ctx.lineTo(arrowX + arrowSize / 2, arrowY);
-      ctx.closePath();
-      ctx.fill();
-      
+      const plusSize = 30;
+      const plusX = canvas.width / 2;
+      const plusY = canvas.height / 2 + 20;
+      const thickness = 4;
+
+      // Draw horizontal line
+      ctx.fillRect(plusX - plusSize/2, plusY - thickness/2, plusSize, thickness);
+      // Draw vertical line
+      ctx.fillRect(plusX - thickness/2, plusY - plusSize/2, thickness, plusSize);
+
       return;
     }
-    
+
     // Draw each layer in order
     imageLayers.forEach(layer => {
       const resizableImage = resizableImages[layer.name];
@@ -470,13 +469,13 @@ export function LayeredImageGenerator() {
           resizableImage.width,
           resizableImage.height
         );
-        
+
         // Draw resize handle at bottom-right corner
         const handleSize = 8;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         ctx.strokeStyle = '#fbd743';
         ctx.lineWidth = 2;
-        
+
         ctx.beginPath();
         ctx.rect(
           resizableImage.x + resizableImage.width - handleSize,
@@ -498,59 +497,59 @@ export function LayeredImageGenerator() {
 
     imageLayers.forEach(layer => {
       preloadedImages[layer.name] = [];
-      
+
       layer.images.forEach((image, index) => {
         const imageUrl = image.url;
         const imageLabel = image.label;
-        
+
         const promise = new Promise<void>((resolve) => {
           const img = new Image();
           img.src = imageUrl;
-          
+
           img.onload = () => {
             preloadedImages[layer.name][index] = img;
             resolve();
           };
-          
+
           img.onerror = () => {
             // Instead of rejecting, just log and resolve
             // This way, the app will still function even if some images fail
             console.error(`Failed to load image: ${imageUrl}`);
             failedImages.push(imageUrl);
-            
+
             // Create a fallback image with a color based on the layer
             const fallbackImg = new Image();
             fallbackImg.width = 400;
             fallbackImg.height = 400;
-            
+
             // Create a canvas to generate a fallback image
             const canvas = document.createElement('canvas');
             canvas.width = 400;
             canvas.height = 400;
             const ctx = canvas.getContext('2d');
-            
+
             if (ctx) {
               // Use theme color for fallback background
               const color = layer.name === "Background" ? '#fbd743' : 
                            (layer.name === "Pose" ? '#9F9F9F' : '#ef6a43');
-              
+
               ctx.fillStyle = color;
               ctx.fillRect(0, 0, 400, 400);
-              
+
               // Add label text
               ctx.fillStyle = '#FFFFFF';
               ctx.font = '20px Arial';
               ctx.textAlign = 'center';
               ctx.fillText(imageLabel || `${layer.name} ${index + 1}`, 200, 200);
-              
+
               fallbackImg.src = canvas.toDataURL('image/png');
               preloadedImages[layer.name][index] = fallbackImg;
             }
-            
+
             resolve();
           };
         });
-        
+
         loadPromises.push(promise);
       });
     });
@@ -567,22 +566,22 @@ export function LayeredImageGenerator() {
   // Update resizableImages when selectedImages or loadedImages change
   useEffect(() => {
     if (isLoading || hasError || !canvasRef.current) return;
-    
+
     const canvas = canvasRef.current;
     const newResizableImages: Record<string, ResizableImage> = {};
-    
+
     // Initialize resizable images
     imageLayers.forEach(layer => {
       const selectedIndex = selectedImages[layer.name];
       const image = loadedImages[layer.name]?.[selectedIndex];
-      
+
       if (image) {
         // Calculate initial position to center the image
         const initialWidth = image.width;
         const initialHeight = image.height;
         const x = (canvas.width - initialWidth) / 2;
         const y = (canvas.height - initialHeight) / 2;
-        
+
         newResizableImages[layer.name] = {
           img: image,
           x,
@@ -600,7 +599,7 @@ export function LayeredImageGenerator() {
         };
       }
     });
-    
+
     setResizableImages(newResizableImages);
   }, [selectedImages, loadedImages, isLoading, hasError]);
 
@@ -620,23 +619,23 @@ export function LayeredImageGenerator() {
   // Handle download click
   const handleDownload = () => {
     if (isLoading || hasError || !canvasRef.current) return;
-    
+
     // Create a new canvas with the same dimensions for the download
     // This ensures we download the image as displayed (with all layers)
     const canvas = canvasRef.current;
     const downloadCanvas = document.createElement('canvas');
     downloadCanvas.width = canvas.width;
     downloadCanvas.height = canvas.height;
-    
+
     const ctx = downloadCanvas.getContext('2d');
     if (!ctx) return;
-    
+
     // Copy the current canvas content (with all layers and their positions/sizes)
     ctx.drawImage(canvas, 0, 0);
-    
+
     // Generate and download the image
     const dataUrl = downloadCanvas.toDataURL('image/png');
-    
+
     const link = document.createElement('a');
     link.href = dataUrl;
     link.download = 'bani-meme.png';
@@ -654,7 +653,7 @@ export function LayeredImageGenerator() {
         {/* Canvas Display Panel - Moved to top */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-medium mb-4 text-secondary border-b border-neutral-200 pb-2">Preview</h2>
-          
+
           <div className="flex flex-col items-center">
             {/* Instructions for resizing */}
             <div className="mb-4 text-sm bg-primary/10 p-3 rounded-lg max-w-lg text-center">
@@ -665,7 +664,7 @@ export function LayeredImageGenerator() {
                 <li>Hold <span className="font-medium">Shift</span> while resizing to maintain aspect ratio</li>
               </ul>
             </div>
-            
+
             <div className="canvas-container mb-6 border-4 border-primary/20 rounded-lg overflow-hidden">
               <canvas 
                 ref={canvasRef}
@@ -674,7 +673,7 @@ export function LayeredImageGenerator() {
                 className={`max-w-full h-auto ${isLoading ? 'opacity-50' : 'opacity-100'} bg-white`}
               />
             </div>
-            
+
             {/* Loading indicator */}
             {isLoading && (
               <div className="mb-4 text-neutral-600 flex items-center">
@@ -685,7 +684,7 @@ export function LayeredImageGenerator() {
                 <span>Loading images...</span>
               </div>
             )}
-            
+
             {/* Error message */}
             {hasError && (
               <div className="mb-4 text-error flex items-center">
@@ -695,7 +694,7 @@ export function LayeredImageGenerator() {
                 <span>Failed to load one or more images. Please try again.</span>
               </div>
             )}
-            
+
             {/* Download button */}
             <button 
               onClick={handleDownload}
@@ -709,7 +708,7 @@ export function LayeredImageGenerator() {
             </button>
           </div>
         </div>
-        
+
         {/* Layer Selection Panel */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/10">
@@ -717,7 +716,7 @@ export function LayeredImageGenerator() {
               <span className="inline-block text-secondary font-medium">Select images in any order you prefer!</span>
             </p>
           </div>
-          
+
           {/* Layer Selection Controls - Now using popover/dropdown UI */}
           <div className="grid gap-4 md:grid-cols-3">
             {imageLayers.map((layer) => (
@@ -743,7 +742,7 @@ export function LayeredImageGenerator() {
                       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </button>
-                  
+
                   {/* Dropdown content */}
                   <div id={`dropdown-${layer.name}`} className={`${openDropdown === layer.name ? 'block' : 'hidden'} absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border border-neutral-200`}>
                     <div className="max-h-60 overflow-y-auto p-3">
@@ -777,7 +776,7 @@ export function LayeredImageGenerator() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Show the currently selected image for this layer */}
                 <div className="mt-2 p-2 flex justify-center border border-primary/20 rounded-md bg-primary/5">
                   <div className="w-16 h-16 bg-white rounded shadow-sm flex items-center justify-center">
