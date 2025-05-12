@@ -476,8 +476,9 @@ export function LayeredImageGenerator() {
         const layerName = layerNames[i];
         const layer = layerObjects[layerName];
         
-        if (isInResizeHandle(x, y, layer)) {
-          console.log("Resize handle clicked for layer:", layerName);
+        const corner = getCornerAtPoint(x, y, layer);
+        if (corner !== Corner.None) {
+          console.log("Resize handle clicked for layer:", layerName, "corner:", corner);
           
           setActiveLayer(layerName);
           setIsResizing(true);
@@ -488,6 +489,7 @@ export function LayeredImageGenerator() {
             [layerName]: {
               ...layer,
               isResizing: true,
+              activeCorner: corner,
               dragStartX: x,
               dragStartY: y
             }
@@ -535,8 +537,14 @@ export function LayeredImageGenerator() {
       for (const layerName in layerObjects) {
         const layer = layerObjects[layerName];
         
-        if (isInResizeHandle(x, y, layer)) {
-          canvas.style.cursor = 'nwse-resize';
+        const corner = getCornerAtPoint(x, y, layer);
+        if (corner !== Corner.None) {
+          // Set appropriate cursor based on which corner
+          if (corner === Corner.TopLeft || corner === Corner.BottomRight) {
+            canvas.style.cursor = 'nwse-resize';
+          } else {
+            canvas.style.cursor = 'nesw-resize';
+          }
           cursorSet = true;
           break;
         } else if (isInLayer(x, y, layer)) {
@@ -556,32 +564,90 @@ export function LayeredImageGenerator() {
       if (isResizing && layerObjects[activeLayer]) {
         const layer = layerObjects[activeLayer];
         
-        // Calculate new dimensions based on mouse movement
-        let newWidth = Math.max(50, layer.width + (x - layer.dragStartX));
-        let newHeight = Math.max(50, layer.height + (y - layer.dragStartY));
-        
-        // Always maintain aspect ratio
-        const aspectRatio = layer.originalWidth / layer.originalHeight;
-        
-        // Use primary drag direction to determine which dimension controls
+        // Get the delta movement
         const deltaX = x - layer.dragStartX;
         const deltaY = y - layer.dragStartY;
         
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          // Width change dominates
-          newHeight = newWidth / aspectRatio;
-        } else {
-          // Height change dominates
-          newWidth = newHeight * aspectRatio;
+        // Variables to store new position and dimensions
+        let newX = layer.x;
+        let newY = layer.y;
+        let newWidth = layer.width;
+        let newHeight = layer.height;
+        
+        const aspectRatio = layer.originalWidth / layer.originalHeight;
+        
+        // Handle different corners
+        switch (layer.activeCorner) {
+          case Corner.TopLeft:
+            // Update position and size inversely
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+              // Width change is dominant
+              newWidth = Math.max(50, layer.width - deltaX);
+              newHeight = newWidth / aspectRatio;
+              newX = layer.x + (layer.width - newWidth);
+              newY = layer.y + (layer.height - newHeight);
+            } else {
+              // Height change is dominant
+              newHeight = Math.max(50, layer.height - deltaY);
+              newWidth = newHeight * aspectRatio;
+              newX = layer.x + (layer.width - newWidth);
+              newY = layer.y + (layer.height - newHeight);
+            }
+            break;
+            
+          case Corner.TopRight:
+            // Update y-position and size
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+              // Width change is dominant
+              newWidth = Math.max(50, layer.width + deltaX);
+              newHeight = newWidth / aspectRatio;
+              newY = layer.y + (layer.height - newHeight);
+            } else {
+              // Height change is dominant
+              newHeight = Math.max(50, layer.height - deltaY);
+              newWidth = newHeight * aspectRatio;
+              newY = layer.y + (layer.height - newHeight);
+            }
+            break;
+            
+          case Corner.BottomLeft:
+            // Update x-position and size
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+              // Width change is dominant
+              newWidth = Math.max(50, layer.width - deltaX);
+              newHeight = newWidth / aspectRatio;
+              newX = layer.x + (layer.width - newWidth);
+            } else {
+              // Height change is dominant
+              newHeight = Math.max(50, layer.height + deltaY);
+              newWidth = newHeight * aspectRatio;
+              newX = layer.x + (layer.width - newWidth);
+            }
+            break;
+            
+          case Corner.BottomRight:
+            // Simple resize from bottom-right
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+              // Width change is dominant
+              newWidth = Math.max(50, layer.width + deltaX);
+              newHeight = newWidth / aspectRatio;
+            } else {
+              // Height change is dominant
+              newHeight = Math.max(50, layer.height + deltaY);
+              newWidth = newHeight * aspectRatio;
+            }
+            break;
         }
         
-        console.log("Resizing to:", newWidth, newHeight);
+        console.log("Resizing to:", newWidth, newHeight, "at position:", newX, newY);
         
-        // Update layer dimensions
+        // Update layer dimensions and position
         setLayerObjects(prev => ({
           ...prev,
           [activeLayer]: {
             ...layer,
+            x: newX,
+            y: newY,
             width: newWidth,
             height: newHeight,
             dragStartX: x,
@@ -650,16 +716,12 @@ export function LayeredImageGenerator() {
         const layerName = layerNames[i];
         const layer = layerObjects[layerName];
         
-        // Use a larger handle size for touch
-        const handleSize = 30;
-        const inHandle = (
-          x >= layer.x + layer.width - handleSize &&
-          x <= layer.x + layer.width &&
-          y >= layer.y + layer.height - handleSize &&
-          y <= layer.y + layer.height
-        );
+        // Use getCornerAtPoint with a slightly larger touch area
+        const corner = getCornerAtPoint(x, y, layer);
         
-        if (inHandle) {
+        if (corner !== Corner.None) {
+          console.log("Touch resize handle detected for layer:", layerName, "corner:", corner);
+          
           setActiveLayer(layerName);
           setIsResizing(true);
           
@@ -668,6 +730,7 @@ export function LayeredImageGenerator() {
             [layerName]: {
               ...layer,
               isResizing: true,
+              activeCorner: corner,
               dragStartX: x,
               dragStartY: y
             }
@@ -715,30 +778,88 @@ export function LayeredImageGenerator() {
       if (!layer) return;
       
       if (isResizing) {
-        // Calculate new dimensions based on touch movement
-        let newWidth = Math.max(50, layer.width + (x - layer.dragStartX));
-        let newHeight = Math.max(50, layer.height + (y - layer.dragStartY));
-        
-        // Always maintain aspect ratio
-        const aspectRatio = layer.originalWidth / layer.originalHeight;
-        
-        // Use primary drag direction to determine which dimension controls
+        // Get the delta movement
         const deltaX = x - layer.dragStartX;
         const deltaY = y - layer.dragStartY;
         
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          // Width change dominates
-          newHeight = newWidth / aspectRatio;
-        } else {
-          // Height change dominates
-          newWidth = newHeight * aspectRatio;
+        // Variables to store new position and dimensions
+        let newX = layer.x;
+        let newY = layer.y;
+        let newWidth = layer.width;
+        let newHeight = layer.height;
+        
+        const aspectRatio = layer.originalWidth / layer.originalHeight;
+        
+        // Handle different corners
+        switch (layer.activeCorner) {
+          case Corner.TopLeft:
+            // Update position and size inversely
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+              // Width change is dominant
+              newWidth = Math.max(50, layer.width - deltaX);
+              newHeight = newWidth / aspectRatio;
+              newX = layer.x + (layer.width - newWidth);
+              newY = layer.y + (layer.height - newHeight);
+            } else {
+              // Height change is dominant
+              newHeight = Math.max(50, layer.height - deltaY);
+              newWidth = newHeight * aspectRatio;
+              newX = layer.x + (layer.width - newWidth);
+              newY = layer.y + (layer.height - newHeight);
+            }
+            break;
+            
+          case Corner.TopRight:
+            // Update y-position and size
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+              // Width change is dominant
+              newWidth = Math.max(50, layer.width + deltaX);
+              newHeight = newWidth / aspectRatio;
+              newY = layer.y + (layer.height - newHeight);
+            } else {
+              // Height change is dominant
+              newHeight = Math.max(50, layer.height - deltaY);
+              newWidth = newHeight * aspectRatio;
+              newY = layer.y + (layer.height - newHeight);
+            }
+            break;
+            
+          case Corner.BottomLeft:
+            // Update x-position and size
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+              // Width change is dominant
+              newWidth = Math.max(50, layer.width - deltaX);
+              newHeight = newWidth / aspectRatio;
+              newX = layer.x + (layer.width - newWidth);
+            } else {
+              // Height change is dominant
+              newHeight = Math.max(50, layer.height + deltaY);
+              newWidth = newHeight * aspectRatio;
+              newX = layer.x + (layer.width - newWidth);
+            }
+            break;
+            
+          case Corner.BottomRight:
+            // Simple resize from bottom-right
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+              // Width change is dominant
+              newWidth = Math.max(50, layer.width + deltaX);
+              newHeight = newWidth / aspectRatio;
+            } else {
+              // Height change is dominant
+              newHeight = Math.max(50, layer.height + deltaY);
+              newWidth = newHeight * aspectRatio;
+            }
+            break;
         }
         
-        // Update layer dimensions
+        // Update layer dimensions and position
         setLayerObjects(prev => ({
           ...prev,
           [activeLayer]: {
             ...layer,
+            x: newX,
+            y: newY,
             width: newWidth,
             height: newHeight,
             dragStartX: x,
