@@ -11,6 +11,15 @@ type ImageLayer = {
   images: ImageItem[];
 };
 
+// Define corner positions for resizing
+enum Corner {
+  TopLeft = 'TopLeft',
+  TopRight = 'TopRight',
+  BottomLeft = 'BottomLeft',
+  BottomRight = 'BottomRight',
+  None = 'None'
+}
+
 // Define selected layer object structure
 type LayerObject = {
   url: string;
@@ -22,6 +31,7 @@ type LayerObject = {
   originalHeight: number;
   isDragging: boolean;
   isResizing: boolean;
+  activeCorner: Corner;
   dragStartX: number;
   dragStartY: number;
 };
@@ -273,6 +283,7 @@ export function LayeredImageGenerator() {
           originalHeight: cachedImage.height,
           isDragging: false,
           isResizing: false,
+          activeCorner: Corner.None,
           dragStartX: 0,
           dragStartY: 0
         };
@@ -335,12 +346,46 @@ export function LayeredImageGenerator() {
         layerObj.height
       );
       
-      // Draw resize handle
+      // Draw resize handles on all four corners
       const handleSize = 15;
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.strokeStyle = '#fbd743';
       ctx.lineWidth = 2;
       
+      // Top-left handle
+      ctx.beginPath();
+      ctx.rect(
+        layerObj.x,
+        layerObj.y,
+        handleSize,
+        handleSize
+      );
+      ctx.fill();
+      ctx.stroke();
+      
+      // Top-right handle
+      ctx.beginPath();
+      ctx.rect(
+        layerObj.x + layerObj.width - handleSize,
+        layerObj.y,
+        handleSize,
+        handleSize
+      );
+      ctx.fill();
+      ctx.stroke();
+      
+      // Bottom-left handle
+      ctx.beginPath();
+      ctx.rect(
+        layerObj.x,
+        layerObj.y + layerObj.height - handleSize,
+        handleSize,
+        handleSize
+      );
+      ctx.fill();
+      ctx.stroke();
+      
+      // Bottom-right handle
       ctx.beginPath();
       ctx.rect(
         layerObj.x + layerObj.width - handleSize,
@@ -358,15 +403,51 @@ export function LayeredImageGenerator() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    // Helper to check if a point is inside a resize handle
-    const isInResizeHandle = (x: number, y: number, layer: LayerObject) => {
+    // Helper to check which resize handle contains a point
+    const getCornerAtPoint = (x: number, y: number, layer: LayerObject): Corner => {
       const handleSize = 20; // Larger for easier grabbing
-      return (
+      
+      // Check top-left corner
+      if (
+        x >= layer.x &&
+        x <= layer.x + handleSize &&
+        y >= layer.y &&
+        y <= layer.y + handleSize
+      ) {
+        return Corner.TopLeft;
+      }
+      
+      // Check top-right corner
+      if (
+        x >= layer.x + layer.width - handleSize &&
+        x <= layer.x + layer.width &&
+        y >= layer.y &&
+        y <= layer.y + handleSize
+      ) {
+        return Corner.TopRight;
+      }
+      
+      // Check bottom-left corner
+      if (
+        x >= layer.x &&
+        x <= layer.x + handleSize &&
+        y >= layer.y + layer.height - handleSize &&
+        y <= layer.y + layer.height
+      ) {
+        return Corner.BottomLeft;
+      }
+      
+      // Check bottom-right corner
+      if (
         x >= layer.x + layer.width - handleSize &&
         x <= layer.x + layer.width &&
         y >= layer.y + layer.height - handleSize &&
         y <= layer.y + layer.height
-      );
+      ) {
+        return Corner.BottomRight;
+      }
+      
+      return Corner.None;
     };
     
     // Helper to check if a point is inside a layer
