@@ -69,24 +69,32 @@ const imageLayers: ImageLayer[] = [
     name: "Pose",
     images: [
       {
-        url: "https://placehold.co/300x300/00000000/3F51B5?text=Pose+1",
-        label: "Standard Pose"
+        url: "/poses/etyr.png",
+        label: "Happy Elephant"
       },
       {
-        url: "https://placehold.co/320x320/00000000/3F51B5?text=Pose+2",
-        label: "Action Pose"
+        url: "/poses/iop.png",
+        label: "Soldier Elephant"
       },
       {
-        url: "https://placehold.co/310x310/00000000/3F51B5?text=Pose+3",
-        label: "Sitting Pose"
+        url: "/poses/rpit.png",
+        label: "Super Saiyan"
       },
       {
-        url: "https://placehold.co/300x300/00000000/3F51B5?text=Pose+4",
-        label: "Jumping Pose"
+        url: "/poses/doritos_elephant.png",
+        label: "Doritos Lover"
       },
       {
-        url: "https://placehold.co/290x290/00000000/3F51B5?text=Pose+5",
-        label: "Running Pose"
+        url: "/poses/shiba_elephant.png",
+        label: "Shiba Costume"
+      },
+      {
+        url: "/poses/pepe_elephant.png",
+        label: "Pepe Costume"
+      },
+      {
+        url: "/poses/penguin_elephant.png",
+        label: "Penguin Costume"
       }
     ]
   },
