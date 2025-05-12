@@ -711,7 +711,7 @@ export function LayeredImageGenerator() {
 
         {/* Layer Selection Panel */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/10">
+          <div className="mt-4 mb-4 p-3 bg-primary/5 rounded-lg border border-primary/10">
             <p className="text-neutral-700 text-center">
               <span className="inline-block text-secondary font-medium">Select images in any order you prefer!</span>
             </p>
