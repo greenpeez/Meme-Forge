@@ -746,8 +746,8 @@ export function LayeredImageGenerator() {
                               checked={selectedIndexes[layer.name] === index}
                               onChange={() => handleSelectLayer(layer.name, index)}
                             />
-                            <div className="border-2 border-transparent hover:border-primary rounded-md overflow-hidden transition-all p-1">
-                              <div className="aspect-square bg-primary rounded flex items-center justify-center">
+                            <div className="border-2 border-transparent hover:border-secondary rounded-md overflow-hidden transition-all p-1">
+                              <div className="aspect-square bg-secondary rounded flex items-center justify-center">
                                 <img 
                                   src={image.url} 
                                   alt={image.label}
@@ -763,8 +763,8 @@ export function LayeredImageGenerator() {
                 </div>
                 
                 {/* Selected thumbnail */}
-                <div className="mt-2 p-2 flex justify-center border border-primary/20 rounded-md bg-primary/20">
-                  <div className="w-16 h-16 bg-primary rounded shadow-sm flex items-center justify-center">
+                <div className="mt-2 p-2 flex justify-center border border-secondary/20 rounded-md bg-secondary/20">
+                  <div className="w-16 h-16 bg-secondary rounded shadow-sm flex items-center justify-center">
                     {selectedIndexes[layer.name] !== undefined ? (
                       <img 
                         src={layer.images[selectedIndexes[layer.name]]?.url}
@@ -772,7 +772,7 @@ export function LayeredImageGenerator() {
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <span className="text-black text-xs text-center">
+                      <span className="text-white text-xs text-center">
                         No image<br/>selected
                       </span>
                     )}
