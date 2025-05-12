@@ -390,12 +390,55 @@ export function LayeredImageGenerator() {
     setOpenDropdown(null);
   };
 
-  // Handle download
+  // Handle download with high resolution
   const handleDownload = () => {
     if (!canvasRef.current) return;
     
-    const canvas = canvasRef.current;
-    const dataUrl = canvas.toDataURL('image/png', 1.0);
+    // Create a high-resolution canvas for the download
+    const highResCanvas = document.createElement('canvas');
+    highResCanvas.width = 2000; // Higher resolution
+    highResCanvas.height = 2000; // Higher resolution
+    const highResCtx = highResCanvas.getContext('2d', { alpha: true });
+    
+    if (!highResCtx) return;
+    
+    // Clear the high-res canvas
+    highResCtx.clearRect(0, 0, highResCanvas.width, highResCanvas.height);
+    
+    if (Object.keys(layerObjects).length === 0) {
+      // If no layers, return without downloading
+      return;
+    }
+    
+    // Draw each layer at higher resolution
+    const scaleRatio = highResCanvas.width / canvasRef.current.width;
+    
+    // Draw each layer in order
+    imageLayers.forEach(layer => {
+      const layerObj = layerObjects[layer.name];
+      if (!layerObj) return;
+      
+      const img = imageCache.current[layerObj.url];
+      if (!img) return;
+      
+      // Calculate the scaled position and size
+      const scaledX = layerObj.x * scaleRatio;
+      const scaledY = layerObj.y * scaleRatio;
+      const scaledWidth = layerObj.width * scaleRatio;
+      const scaledHeight = layerObj.height * scaleRatio;
+      
+      // Draw the image at high resolution
+      highResCtx.drawImage(
+        img,
+        scaledX,
+        scaledY,
+        scaledWidth,
+        scaledHeight
+      );
+    });
+    
+    // Convert the high-res canvas to a data URL
+    const dataUrl = highResCanvas.toDataURL('image/png', 1.0);
     
     const link = document.createElement('a');
     link.href = dataUrl;
