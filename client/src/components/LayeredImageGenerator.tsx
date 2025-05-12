@@ -772,7 +772,7 @@ export function LayeredImageGenerator() {
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <span className="text-neutral-300 text-xs text-center">
+                      <span className="text-black text-xs text-center">
                         No image<br/>selected
                       </span>
                     )}
