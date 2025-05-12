@@ -103,26 +103,26 @@ const imageLayers: ImageLayer[] = [
     ]
   },
   {
-    name: "Accessory",
+    name: "Charm",
     images: [
       {
-        url: "https://placehold.co/200x100/00000000/FF4081?text=Acc+1",
-        label: "Hat"
+        url: "/accessories/beanie_dog.png",
+        label: "Beanie Dog"
       },
       {
-        url: "https://placehold.co/180x90/00000000/FF4081?text=Acc+2",
-        label: "Glasses"
+        url: "/accessories/bitcoin.png",
+        label: "Bitcoin"
       },
       {
-        url: "https://placehold.co/220x110/00000000/FF4081?text=Acc+3",
-        label: "Bowtie"
+        url: "/accessories/astro_cat.png",
+        label: "Astro Cat"
       },
       {
-        url: "https://placehold.co/190x95/00000000/FF4081?text=Acc+4",
+        url: "https://placehold.co/190x95/00000000/FF4081?text=Charm+4",
         label: "Necklace"
       },
       {
-        url: "https://placehold.co/210x105/00000000/FF4081?text=Acc+5",
+        url: "https://placehold.co/210x105/00000000/FF4081?text=Charm+5",
         label: "Crown"
       }
     ]
