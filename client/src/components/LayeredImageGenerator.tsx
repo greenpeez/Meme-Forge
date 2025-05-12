@@ -402,8 +402,11 @@ export function LayeredImageGenerator() {
     
     if (!highResCtx) return;
     
-    // Clear the high-res canvas
+    // Clear the high-res canvas and ensure transparency
     highResCtx.clearRect(0, 0, highResCanvas.width, highResCanvas.height);
+    
+    // Set the global composite operation to maintain transparency
+    highResCtx.globalCompositeOperation = 'source-over';
     
     if (Object.keys(layerObjects).length === 0) {
       // If no layers, return without downloading
@@ -442,7 +445,7 @@ export function LayeredImageGenerator() {
     
     const link = document.createElement('a');
     link.href = dataUrl;
-    link.download = 'bani-meme.png';
+    link.download = 'bani-meme-transparent.png';
     link.click();
   };
 
