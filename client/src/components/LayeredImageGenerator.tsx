@@ -471,11 +471,12 @@ export function LayeredImageGenerator() {
         );
 
         // Draw resize handle at bottom-right corner
-        const handleSize = 8;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-        ctx.strokeStyle = '#fbd743';
+        const handleSize = 12;
+        ctx.fillStyle = '#fbd743';
+        ctx.strokeStyle = 'white';
         ctx.lineWidth = 2;
 
+        // Draw diagonal lines in the handle for better visibility
         ctx.beginPath();
         ctx.rect(
           resizableImage.x + resizableImage.width - handleSize,
@@ -484,6 +485,19 @@ export function LayeredImageGenerator() {
           handleSize
         );
         ctx.fill();
+        ctx.stroke();
+
+        // Add diagonal lines
+        ctx.beginPath();
+        ctx.strokeStyle = 'white';
+        ctx.moveTo(
+          resizableImage.x + resizableImage.width - handleSize,
+          resizableImage.y + resizableImage.height - handleSize/2
+        );
+        ctx.lineTo(
+          resizableImage.x + resizableImage.width - handleSize/2,
+          resizableImage.y + resizableImage.height - handleSize
+        );
         ctx.stroke();
       }
     });
