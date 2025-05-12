@@ -315,7 +315,7 @@ export function LayeredImageGenerator() {
     if (!canvasRef.current) return;
     
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
     // Clear canvas
@@ -404,7 +404,7 @@ export function LayeredImageGenerator() {
   };
 
   return (
-    <div className="layered-image-generator mx-auto p-4 max-w-7xl">
+    <div className="layered-image-generator mx-auto p-4 max-w-7xl bg-transparent">
       <header className="mb-6 text-center">
         <h1 className="text-3xl font-bold text-secondary">Bani Meme Generator</h1>
       </header>
@@ -416,12 +416,12 @@ export function LayeredImageGenerator() {
           
           <div className="flex flex-col items-center">
             {/* Canvas Preview Area */}
-            <div className="canvas-container mb-8 border-4 border-primary/20 rounded-lg overflow-hidden">
+            <div className="canvas-container mb-8 border-4 border-primary/20 rounded-lg overflow-hidden bg-transparent">
               <canvas 
                 ref={canvasRef}
                 width="600" 
                 height="600" 
-                className={`max-w-full h-auto ${isLoading ? 'opacity-50' : 'opacity-100'} bg-white`}
+                className={`max-w-full h-auto ${isLoading ? 'opacity-50' : 'opacity-100'} bg-transparent`}
               />
             </div>
             
