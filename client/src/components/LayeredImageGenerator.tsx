@@ -969,7 +969,7 @@ export function LayeredImageGenerator() {
           <div className="flex flex-col items-center">
             {/* Instructions for resizing */}
             <div className="mb-4 text-sm bg-primary/10 p-3 rounded-lg max-w-lg text-center">
-              <p className="font-medium text-primary mb-1">Image Editing Tips:</p>
+              <p className="font-medium text-[#ef6a43] mb-1">Image Editing Tips:</p>
               <ul className="text-neutral-700 list-disc list-inside space-y-1 text-left">
                 <li><span className="font-medium">Drag images</span> by clicking and moving them</li>
                 <li><span className="font-medium">Resize images</span> by dragging the corner handle</li>
