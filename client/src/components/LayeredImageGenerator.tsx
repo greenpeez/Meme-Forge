@@ -167,7 +167,6 @@ export function LayeredImageGenerator() {
   // Function to generate random layer selections
   const generateRandomCombination = () => {
     const newSelectedIndexes: Record<string, number> = {};
-    const newLayerObjects: Record<string, LayerObject> = {};
     
     // Generate random selection for each layer type
     imageLayers.forEach(layer => {
@@ -176,54 +175,9 @@ export function LayeredImageGenerator() {
       // Get a random index for this layer
       const randomIndex = Math.floor(Math.random() * layer.images.length);
       newSelectedIndexes[layer.name] = randomIndex;
-      
-      // Get the corresponding image
-      const selectedImage = layer.images[randomIndex];
-      if (!selectedImage) return;
-      
-      // Load the image if not already in cache
-      loadImageToCache(selectedImage.url, () => {
-        const img = imageCache.current[selectedImage.url];
-        if (!img) return;
-        
-        // Create new layer object with default positioning
-        const canvasWidth = canvasRef.current.width;
-        const canvasHeight = canvasRef.current.height;
-        
-        // Calculate position to center the image
-        const aspectRatio = img.width / img.height;
-        let width = canvasWidth;
-        let height = width / aspectRatio;
-        
-        // If height is too tall, constrain by height instead
-        if (height > canvasHeight) {
-          height = canvasHeight;
-          width = height * aspectRatio;
-        }
-        
-        const x = (canvasWidth - width) / 2;
-        const y = (canvasHeight - height) / 2;
-        
-        newLayerObjects[layer.name] = {
-          url: selectedImage.url,
-          x,
-          y,
-          width,
-          height,
-          originalWidth: img.width,
-          originalHeight: img.height
-        };
-        
-        // Update state and redraw canvas
-        setLayerObjects(prev => ({
-          ...prev,
-          [layer.name]: newLayerObjects[layer.name]
-        }));
-        redrawCanvas();
-      });
     });
     
-    // Update selected indexes
+    // Update selected indexes - the existing effects will handle the rest
     setSelectedIndexes(newSelectedIndexes);
   };
 
