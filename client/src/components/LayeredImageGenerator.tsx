@@ -390,14 +390,12 @@ export function LayeredImageGenerator() {
           let newWidth = Math.max(50, img.width + (mouseX - img.resizeStartX));
           let newHeight = Math.max(50, img.height + (mouseY - img.resizeStartY));
 
-          // Maintain aspect ratio if shift key is pressed
-          if (e.shiftKey) {
-            const aspectRatio = img.originalWidth / img.originalHeight;
-            if (newWidth / newHeight > aspectRatio) {
-              newWidth = newHeight * aspectRatio;
-            } else {
-              newHeight = newWidth / aspectRatio;
-            }
+          // Always maintain aspect ratio for consistent experience
+          const aspectRatio = img.originalWidth / img.originalHeight;
+          if (newWidth / newHeight > aspectRatio) {
+            newWidth = newHeight * aspectRatio;
+          } else {
+            newHeight = newWidth / aspectRatio;
           }
 
           const updatedImages = { ...resizableImages };
