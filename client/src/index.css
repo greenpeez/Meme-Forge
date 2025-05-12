@@ -15,7 +15,7 @@
   --input: 20 5.9% 90%;
   --primary: 46 95% 62%;  /* Changed to match yellow image: #fbd743 */
   --primary-foreground: 0 0% 20%;
-  --secondary: 16 83% 54%;  /* Changed to match orange image: #e35f37 */
+  --secondary: 14 100% 57%;  /* Changed to match orange image: #ff5723 */
   --secondary-foreground: 0 0% 100%;
   --accent: 60 4.8% 95.9%;
   --accent-foreground: 24 9.8% 10%;
@@ -26,7 +26,7 @@
 
   /* Chart colors */
   --chart-1: 46 95% 62%;
-  --chart-2: 14 85% 60%;
+  --chart-2: 14 100% 57%;
   --chart-3: 200 95% 45%;
   --chart-4: 155 100% 45%;
   --chart-5: 276 100% 50%;
