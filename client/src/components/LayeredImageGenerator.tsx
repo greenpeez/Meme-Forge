@@ -155,6 +155,10 @@ export function LayeredImageGenerator() {
   
   // Dropdown state
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  
+  // Text caption states
+  const [topText, setTopText] = useState<string>('');
+  const [bottomText, setBottomText] = useState<string>('');
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -386,7 +390,38 @@ export function LayeredImageGenerator() {
         layerObj.height
       );
     });
-  }, [layerObjects]);
+    
+    // Draw text captions with IMPACT font and black outline
+    drawTextWithOutline(ctx, topText, canvas.width / 2, 50, 45, '#FFFFFF', '#000000', 3);
+    drawTextWithOutline(ctx, bottomText, canvas.width / 2, canvas.height - 50, 45, '#FFFFFF', '#000000', 3);
+  }, [layerObjects, topText, bottomText]);
+  
+  // Helper function to draw text with outline
+  const drawTextWithOutline = (
+    ctx: CanvasRenderingContext2D, 
+    text: string, 
+    x: number, 
+    y: number, 
+    fontSize: number, 
+    fillColor: string, 
+    strokeColor: string, 
+    lineWidth: number
+  ) => {
+    if (!text) return;
+    
+    ctx.font = `${fontSize}px IMPACT, Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // Draw the outline
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = lineWidth;
+    ctx.strokeText(text, x, y);
+    
+    // Draw the text
+    ctx.fillStyle = fillColor;
+    ctx.fillText(text, x, y);
+  };
 
   // No user interactions for dragging or resizing
   // Images will be rendered at their default positions
@@ -488,6 +523,42 @@ export function LayeredImageGenerator() {
         scaledHeight
       );
     });
+    
+    // Add text captions to the high-res image
+    if (topText || bottomText) {
+      const scaledFontSize = Math.round(45 * scaleRatio);
+      highResCtx.font = `${scaledFontSize}px IMPACT, Arial, sans-serif`;
+      highResCtx.textAlign = 'center';
+      highResCtx.textBaseline = 'middle';
+      
+      // Calculate positions
+      const topYPosition = 50 * scaleRatio;
+      const bottomYPosition = highResCanvas.height - (50 * scaleRatio);
+      
+      // Draw top text
+      if (topText) {
+        // Draw outline
+        highResCtx.strokeStyle = '#000000';
+        highResCtx.lineWidth = 3 * scaleRatio;
+        highResCtx.strokeText(topText, highResCanvas.width / 2, topYPosition);
+        
+        // Draw text
+        highResCtx.fillStyle = '#FFFFFF';
+        highResCtx.fillText(topText, highResCanvas.width / 2, topYPosition);
+      }
+      
+      // Draw bottom text
+      if (bottomText) {
+        // Draw outline
+        highResCtx.strokeStyle = '#000000';
+        highResCtx.lineWidth = 3 * scaleRatio;
+        highResCtx.strokeText(bottomText, highResCanvas.width / 2, bottomYPosition);
+        
+        // Draw text
+        highResCtx.fillStyle = '#FFFFFF';
+        highResCtx.fillText(bottomText, highResCanvas.width / 2, bottomYPosition);
+      }
+    }
     
     // Convert the high-res canvas to a data URL
     const dataUrl = highResCanvas.toDataURL('image/png', 1.0);
