@@ -10,7 +10,7 @@ document.head.appendChild(link);
 
 // Add title
 const title = document.createElement('title');
-title.textContent = 'Layered Image Generator';
+title.textContent = 'Bani Meme Generator';
 document.head.appendChild(title);
 
 createRoot(document.getElementById("root")!).render(<App />);

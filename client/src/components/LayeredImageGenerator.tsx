@@ -56,6 +56,9 @@ export function LayeredImageGenerator() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
 
+  // State for tracking open dropdowns
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
   // Initialize selected images
   useEffect(() => {
     const initialSelected: Record<string, number> = {};
@@ -64,6 +67,28 @@ export function LayeredImageGenerator() {
     });
     setSelectedImages(initialSelected);
   }, []);
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openDropdown) {
+        const dropdownEl = document.getElementById(`dropdown-${openDropdown}`);
+        const buttonEl = document.getElementById(`button-${openDropdown}`);
+        
+        if (dropdownEl && 
+            !dropdownEl.contains(event.target as Node) && 
+            buttonEl && 
+            !buttonEl.contains(event.target as Node)) {
+          setOpenDropdown(null);
+        }
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openDropdown]);
 
   // Preload all images
   useEffect(() => {
@@ -158,50 +183,13 @@ export function LayeredImageGenerator() {
   return (
     <div className="layered-image-generator mx-auto p-4 max-w-7xl">
       <header className="mb-6 text-center">
-        <h1 className="text-2xl font-bold text-primary mb-2">Layered Image Generator</h1>
-        <p className="text-neutral-600">Create custom images by selecting elements from each layer category</p>
+        <h1 className="text-2xl font-bold text-primary mb-2">Bani Meme Generator</h1>
+        <p className="text-neutral-600">Mix-n-match layers to build your custom Bani PFP!</p>
       </header>
 
-      <div className="lg:flex lg:space-x-8 space-y-6 lg:space-y-0">
-        {/* Layer Selection Panel */}
-        <div className="lg:w-1/2 bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-medium mb-4 text-primary-dark border-b border-neutral-200 pb-2">Layer Selection</h2>
-          
-          {/* Layer Selection Controls */}
-          <div className="space-y-8">
-            {imageLayers.map((layer) => (
-              <div key={layer.name} className="mb-6">
-                <h3 className="text-lg font-medium mb-3 text-neutral-800">{layer.name}</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                  {layer.images.map((imageUrl, imageIndex) => (
-                    <label key={imageIndex} className="cursor-pointer layer-option">
-                      <input 
-                        type="radio" 
-                        name={layer.name} 
-                        value={imageIndex} 
-                        className="sr-only" 
-                        checked={selectedImages[layer.name] === imageIndex}
-                        onChange={() => handleSelectionChange(layer.name, imageIndex)}
-                      />
-                      <div className="border-2 border-transparent hover:border-primary-light rounded-md overflow-hidden transition-all p-1">
-                        <div className="aspect-square bg-neutral-200 rounded flex items-center justify-center">
-                          <img 
-                            src={imageUrl} 
-                            alt={`${layer.name} option ${imageIndex + 1}`}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Canvas Display Panel */}
-        <div className="lg:w-1/2 bg-white p-6 rounded-lg shadow-md">
+      <div className="flex flex-col space-y-6">
+        {/* Canvas Display Panel - Moved to top */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-medium mb-4 text-primary-dark border-b border-neutral-200 pb-2">Preview</h2>
           
           <div className="flex flex-col items-center">
@@ -246,6 +234,81 @@ export function LayeredImageGenerator() {
               </svg>
               Download Image
             </button>
+          </div>
+        </div>
+        
+        {/* Layer Selection Panel */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-medium mb-4 text-primary-dark border-b border-neutral-200 pb-2">Layer Selection</h2>
+          
+          {/* Layer Selection Controls - Now using popover/dropdown UI */}
+          <div className="grid gap-4 md:grid-cols-3">
+            {imageLayers.map((layer) => (
+              <div key={layer.name} className="mb-4">
+                <div className="relative" key={layer.name}>
+                  <button 
+                    id={`button-${layer.name}`}
+                    type="button"
+                    onClick={() => {
+                      // Toggle dropdown state
+                      setOpenDropdown(prev => prev === layer.name ? null : layer.name);
+                    }}
+                    className="flex justify-between items-center w-full px-4 py-3 bg-primary text-white rounded-md shadow hover:bg-primary/90 transition-colors"
+                  >
+                    <span className="font-medium">{layer.name}</span>
+                    <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  
+                  {/* Dropdown content */}
+                  <div id={`dropdown-${layer.name}`} className={`${openDropdown === layer.name ? 'block' : 'hidden'} absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border border-neutral-200`}>
+                    <div className="max-h-60 overflow-y-auto p-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {layer.images.map((imageUrl, imageIndex) => (
+                          <label key={imageIndex} className="cursor-pointer layer-option">
+                            <input 
+                              type="radio" 
+                              name={layer.name} 
+                              value={imageIndex} 
+                              className="sr-only" 
+                              checked={selectedImages[layer.name] === imageIndex}
+                              onChange={() => {
+                                handleSelectionChange(layer.name, imageIndex);
+                                // Close dropdown when selection made
+                                setOpenDropdown(null);
+                              }}
+                            />
+                            <div className="border-2 border-transparent hover:border-primary-light rounded-md overflow-hidden transition-all p-1">
+                              <div className="aspect-square bg-neutral-200 rounded flex items-center justify-center">
+                                <img 
+                                  src={imageUrl} 
+                                  alt={`${layer.name} option ${imageIndex + 1}`}
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Show the currently selected image for this layer */}
+                <div className="mt-2 p-2 flex justify-center border rounded-md">
+                  <div className="w-16 h-16 bg-neutral-100 rounded">
+                    {loadedImages[layer.name] && selectedImages[layer.name] !== undefined && (
+                      <img 
+                        src={layer.images[selectedImages[layer.name]]}
+                        alt={`Selected ${layer.name}`}
+                        className="w-full h-full object-contain"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
