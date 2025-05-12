@@ -164,6 +164,69 @@ export function LayeredImageGenerator() {
   const [topText, setTopText] = useState<string>('');
   const [bottomText, setBottomText] = useState<string>('');
 
+  // Function to generate random layer selections
+  const generateRandomCombination = () => {
+    const newSelectedIndexes: Record<string, number> = {};
+    const newLayerObjects: Record<string, LayerObject> = {};
+    
+    // Generate random selection for each layer type
+    imageLayers.forEach(layer => {
+      if (layer.images.length === 0) return;
+      
+      // Get a random index for this layer
+      const randomIndex = Math.floor(Math.random() * layer.images.length);
+      newSelectedIndexes[layer.name] = randomIndex;
+      
+      // Get the corresponding image
+      const selectedImage = layer.images[randomIndex];
+      if (!selectedImage) return;
+      
+      // Load the image if not already in cache
+      loadImageToCache(selectedImage.url, () => {
+        const img = imageCache.current[selectedImage.url];
+        if (!img) return;
+        
+        // Create new layer object with default positioning
+        const canvasWidth = canvasRef.current.width;
+        const canvasHeight = canvasRef.current.height;
+        
+        // Calculate position to center the image
+        const aspectRatio = img.width / img.height;
+        let width = canvasWidth;
+        let height = width / aspectRatio;
+        
+        // If height is too tall, constrain by height instead
+        if (height > canvasHeight) {
+          height = canvasHeight;
+          width = height * aspectRatio;
+        }
+        
+        const x = (canvasWidth - width) / 2;
+        const y = (canvasHeight - height) / 2;
+        
+        newLayerObjects[layer.name] = {
+          url: selectedImage.url,
+          x,
+          y,
+          width,
+          height,
+          originalWidth: img.width,
+          originalHeight: img.height
+        };
+        
+        // Update state and redraw canvas
+        setLayerObjects(prev => ({
+          ...prev,
+          [layer.name]: newLayerObjects[layer.name]
+        }));
+        redrawCanvas();
+      });
+    });
+    
+    // Update selected indexes
+    setSelectedIndexes(newSelectedIndexes);
+  };
+
   // Close dropdown when clicking outside
   useEffect(() => {
     if (!openDropdown) return;
@@ -695,8 +758,21 @@ export function LayeredImageGenerator() {
               </div>
             </div>
             
-            {/* Download button */}
-            <div className="flex justify-center mt-4 mb-6">
+            {/* Action buttons */}
+            <div className="flex justify-center gap-4 mt-4 mb-6">
+              {/* Randomizer button */}
+              <button 
+                onClick={generateRandomCombination}
+                disabled={isLoading}
+                className="bg-secondary hover:bg-primary hover:text-black text-white px-6 py-3 rounded-md font-medium transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Randomizer
+              </button>
+              
+              {/* Download button */}
               <button 
                 onClick={handleDownload}
                 disabled={isLoading || Object.keys(layerObjects).length === 0}
