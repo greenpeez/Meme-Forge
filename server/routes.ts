@@ -1,12 +1,15 @@
-import { Express, Request, Response } from "express";
-import { Server } from "http";
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { storage } from "./storage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  app.get("/health", (_req: Request, res: Response) => {
-    res.json({ status: "ok" });
-  });
+  // put application routes here
+  // prefix all routes with /api
 
-  return app.listen(5000, "0.0.0.0", () => {
-    console.log("Server running on port 5000");
-  });
+  // use storage to perform CRUD operations on the storage interface
+  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+
+  const httpServer = createServer(app);
+
+  return httpServer;
 }
