@@ -4,7 +4,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { Client } from "@replit/object-storage";
 
-const client = new Client();
+const client = new Client({
+  bucket: process.env.REPLIT_DEPLOYMENT_ID || "default-bucket"
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Storage route to serve images
