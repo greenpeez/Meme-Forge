@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Embed the Bani Meme Generator</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 30px;
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+      padding: 40px;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #6366f1;
+      margin-bottom: 30px;
+      font-size: 2.2rem;
+    }
+    
+    h2 {
+      color: #4f46e5;
+      margin-top: 40px;
+      font-size: 1.6rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 10px;
+    }
+    
+    h3 {
+      color: #4b5563;
+      margin-top: 25px;
+    }
+    
+    .code-block {
+      background-color: #f8fafc;
+      padding: 18px;
+      border-radius: 8px;
+      border-left: 4px solid #6366f1;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      margin: 15px 0;
+      white-space: pre-wrap;
+      font-size: 0.9rem;
+    }
+    
+    p, ul {
+      color: #4b5563;
+    }
+    
+    ul {
+      padding-left: 25px;
+    }
+    
+    li {
+      margin-bottom: 8px;
+    }
+    
+    .method {
+      background-color: #f0f9ff;
+      border: 1px solid #e0f2fe;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .note {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    
+    .deployment-info {
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>How to Embed the Bani Meme Generator</h1>
+    
+    <div class="deployment-info">
+      <strong>Important:</strong> Before using any of these embedding methods, make sure to:
+      <ol>
+        <li>Deploy your app on Replit by clicking the "Deploy" button at the top of your Replit page</li>
+        <li>Replace "YOUR_APP_URL" in all code examples with your actual deployed URL</li>
+      </ol>
+    </div>
+    
+    <h2>Method 1: Simple iframe Embedding</h2>
+    <div class="method">
+      <p>This is the easiest way to embed the Bani Meme Generator on any website.</p>
+      
+      <h3>Basic Embed Code</h3>
+      <div class="code-block">&lt;iframe src="YOUR_APP_URL" width="100%" height="900" style="border: none; max-width: 800px; display: block; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);" title="Bani Meme Generator"&gt;&lt;/iframe&gt;</div>
+      
+      <h3>With Container Div</h3>
+      <div class="code-block">&lt;div style="width: 100%; max-width: 800px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);"&gt;
+  &lt;iframe src="YOUR_APP_URL" style="width: 100%; height: 900px; border: none;" title="Bani Meme Generator"&gt;&lt;/iframe&gt;
+&lt;/div&gt;</div>
+      
+      <h3>Customization Options</h3>
+      <ul>
+        <li>Adjust the <code>height</code> value to fit your desired size</li>
+        <li>Modify the <code>max-width</code> to change the width of the generator</li>
+        <li>Change or remove the <code>box-shadow</code> and <code>border-radius</code> styling as needed</li>
+      </ul>
+    </div>
+    
+    <h2>Method 2: Responsive Embedding</h2>
+    <div class="method">
+      <p>This method ensures the generator maintains proper proportions on different screen sizes.</p>
+      
+      <div class="code-block">&lt;style&gt;
+  .meme-generator-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding-top: 125%; /* Aspect ratio: adjust as needed */
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .meme-generator-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+&lt;/style&gt;
+
+&lt;div class="meme-generator-container"&gt;
+  &lt;iframe src="YOUR_APP_URL" title="Bani Meme Generator"&gt;&lt;/iframe&gt;
+&lt;/div&gt;</div>
+      
+      <div class="note">
+        <p><strong>Note:</strong> The <code>padding-top</code> value controls the aspect ratio. Adjust it based on your generator's layout: 100% for a square, 56.25% for a 16:9 aspect ratio, etc.</p>
+      </div>
+    </div>
+    
+    <h2>Method 3: Web Component Integration</h2>
+    <div class="method">
+      <p>For advanced integration, you can use the Bani Meme Generator as a custom HTML element.</p>
+      
+      <h3>Step 1: Add the script</h3>
+      <div class="code-block">&lt;script src="YOUR_APP_URL/meme-generator.js"&gt;&lt;/script&gt;</div>
+      
+      <h3>Step 2: Use the custom element</h3>
+      <div class="code-block">&lt;bani-meme-generator 
+  width="800" 
+  height="900"
+  app-url="YOUR_APP_URL"
+&gt;&lt;/bani-meme-generator&gt;</div>
+      
+      <h3>Optional: Configure with attributes</h3>
+      <div class="code-block">&lt;bani-meme-generator 
+  width="800" 
+  height="900"
+  app-url="YOUR_APP_URL"
+  initial-background="background1"
+  initial-pose="pose2"
+  initial-charm="charm3"
+  top-text="TOP TEXT"
+  bottom-text="BOTTOM TEXT"
+&gt;&lt;/bani-meme-generator&gt;</div>
+      
+      <h3>Advanced: Interact with the component via JavaScript</h3>
+      <div class="code-block">&lt;script&gt;
+  // Get reference to the component
+  const generator = document.querySelector('bani-meme-generator');
+  
+  // Listen for events
+  generator.addEventListener('image-generated', (e) => {
+    console.log('Image URL:', e.detail.imageUrl);
+    // You can use the image URL to display or save the generated image
+  });
+  
+  // Set text programmatically
+  document.getElementById('update-button').addEventListener('click', () => {
+    const topText = document.getElementById('top-text-input').value;
+    const bottomText = document.getElementById('bottom-text-input').value;
+    generator.setText(topText, bottomText);
+  });
+  
+  // Trigger download programmatically
+  document.getElementById('download-button').addEventListener('click', () => {
+    generator.download();
+  });
+&lt;/script&gt;</div>
+      
+      <div class="note">
+        <p><strong>Note:</strong> The Web Component integration requires deploying the <code>meme-generator.js</code> file to your server. For Replit deployment, you'll need to add this file to your <code>public</code> directory.</p>
+      </div>
+    </div>
+    
+    <h2>Deployment Tips for Replit</h2>
+    <div class="method">
+      <p>To make your Bani Meme Generator available for embedding:</p>
+      
+      <ol>
+        <li>Click the <strong>Deploy</strong> button in your Replit project</li>
+        <li>After successful deployment, you'll receive a URL like <code>https://your-project-name.username.repl.co</code></li>
+        <li>Use this URL to replace <code>YOUR_APP_URL</code> in the embedding code</li>
+        <li>For the Web Component method, upload the <code>meme-generator.js</code> file to your Replit public directory</li>
+      </ol>
+      
+      <div class="note">
+        <p><strong>Performance Tip:</strong> For better performance with embeds, consider optimizing your images and minimizing unnecessary dependencies in your app.</p>
+      </div>
+    </div>
+    
+    <footer>
+      &copy; 2025 Bani Meme Generator | All Rights Reserved
+    </footer>
+  </div>
+</body>
+</html>

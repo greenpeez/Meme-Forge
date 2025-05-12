@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bani Meme Generator Web Component Example</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #6366f1;
+    }
+    
+    .code-block {
+      background-color: #f1f5f9;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: monospace;
+      margin: 15px 0;
+    }
+    
+    .instructions {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #f0f9ff;
+      border-radius: 8px;
+      border-left: 4px solid #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Bani Meme Generator Web Component Example</h1>
+    
+    <div id="meme-generator-container"></div>
+    
+    <div class="instructions">
+      <h2>How to Use the Generator as a Web Component</h2>
+      <p>For more advanced integration, you can load the generator as a web component. Here's how:</p>
+      
+      <h3>Step 1: Add the script tag to load the component</h3>
+      <div class="code-block">
+        &lt;script src="YOUR_APP_URL/meme-generator.js"&gt;&lt;/script&gt;
+      </div>
+      
+      <h3>Step 2: Use the custom element in your HTML</h3>
+      <div class="code-block">
+        &lt;bani-meme-generator&gt;&lt;/bani-meme-generator&gt;
+      </div>
+      
+      <h3>Step 3: Optional - Configure with attributes</h3>
+      <div class="code-block">
+        &lt;bani-meme-generator 
+          width="800" 
+          height="900"
+          initial-background="background1"
+          initial-pose="pose1"
+          initial-charm="charm1"
+        &gt;&lt;/bani-meme-generator&gt;
+      </div>
+      
+      <h3>Step 4: Listen for custom events (optional)</h3>
+      <div class="code-block">
+        &lt;script&gt;
+          document.querySelector('bani-meme-generator').addEventListener('image-generated', (e) => {
+            console.log('Generated image URL:', e.detail.imageUrl);
+            // You can use e.detail.imageUrl to get the generated image data URL
+          });
+        &lt;/script&gt;
+      </div>
+      
+      <p>Note: Replace <code>YOUR_APP_URL</code> with the URL of your deployed Replit app. The web component integration requires deploying a special script that wraps your app as a custom HTML element.</p>
+      
+      <p>To implement this web component integration, you'll need to develop a wrapper script (meme-generator.js) that defines the custom element and its behavior.</p>
+    </div>
+  </div>
+  
+  <script>
+    // This is a placeholder for demonstration purposes
+    // In a real implementation, you would create a proper Web Component wrapper
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('meme-generator-container');
+      
+      // Create iframe
+      const iframe = document.createElement('iframe');
+      iframe.src = 'YOUR_APP_URL';
+      iframe.style.width = '100%';
+      iframe.style.height = '900px';
+      iframe.style.border = 'none';
+      iframe.style.borderRadius = '8px';
+      iframe.title = 'Bani Meme Generator';
+      
+      // Append to container
+      container.style.width = '100%';
+      container.style.maxWidth = '800px';
+      container.style.margin = '0 auto 30px';
+      container.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)';
+      container.style.borderRadius = '8px';
+      container.style.overflow = 'hidden';
+      container.appendChild(iframe);
+    });
+  </script>
+</body>
+</html>
