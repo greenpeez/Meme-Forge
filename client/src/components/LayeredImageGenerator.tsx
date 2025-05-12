@@ -118,12 +118,20 @@ const imageLayers: ImageLayer[] = [
         label: "Astro Cat"
       },
       {
-        url: "https://placehold.co/190x95/00000000/FF4081?text=Charm+4",
-        label: "Necklace"
+        url: "/accessories/solana_token.png",
+        label: "Solana Token"
       },
       {
-        url: "https://placehold.co/210x105/00000000/FF4081?text=Charm+5",
-        label: "Crown"
+        url: "/accessories/rainbow_glasses.png",
+        label: "Rainbow Glasses"
+      },
+      {
+        url: "/accessories/sports_car.png",
+        label: "Sports Car"
+      },
+      {
+        url: "/accessories/red_backpack.png",
+        label: "Red Backpack"
       }
     ]
   }
