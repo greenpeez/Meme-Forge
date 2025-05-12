@@ -660,7 +660,7 @@ export function LayeredImageGenerator() {
             )}
             
             {/* Text Caption Controls */}
-            <div className="w-full max-w-md mb-4">
+            <div className="w-full max-w-md mb-4 mt-8">
               <h2 className="text-lg font-medium mb-3 text-secondary text-center">Insert Caption</h2>
               
               {/* Top Text Input */}
