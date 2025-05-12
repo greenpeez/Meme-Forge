@@ -746,8 +746,8 @@ export function LayeredImageGenerator() {
                               checked={selectedIndexes[layer.name] === index}
                               onChange={() => handleSelectLayer(layer.name, index)}
                             />
-                            <div className="border-2 border-transparent hover:border-secondary rounded-md overflow-hidden transition-all p-1">
-                              <div className="aspect-square bg-secondary rounded flex items-center justify-center">
+                            <div className="border-2 border-transparent hover:border-yellow-400 rounded-md overflow-hidden transition-all p-1">
+                              <div className="aspect-square bg-white rounded flex items-center justify-center">
                                 <img 
                                   src={image.url} 
                                   alt={image.label}
