@@ -304,7 +304,7 @@ export function LayeredImageGenerator() {
     // Check if there are any layers to display
     if (Object.keys(layerObjects).length === 0) {
       // Draw empty state message
-      ctx.fillStyle = 'rgba(0, 0, 0, 1)'; // Black text
+      ctx.fillStyle = '#ef6a43'; // Orange text in the app's theme
       ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
