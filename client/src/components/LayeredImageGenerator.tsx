@@ -180,12 +180,10 @@ export function LayeredImageGenerator() {
   // State for tracking open dropdowns
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  // Initialize selected images
+  // Initialize selected images as empty
   useEffect(() => {
     const initialSelected: Record<string, number> = {};
-    imageLayers.forEach(layer => {
-      initialSelected[layer.name] = 0;
-    });
+    // Do not pre-select any images
     setSelectedImages(initialSelected);
   }, []);
   
@@ -432,6 +430,34 @@ export function LayeredImageGenerator() {
     
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Check if any images are selected
+    const hasSelectedImages = Object.keys(resizableImages).length > 0;
+    
+    if (!hasSelectedImages && !isLoading) {
+      // Draw prompt text when no images are selected
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Select images from the panels below', canvas.width / 2, canvas.height / 2 - 30);
+      
+      // Add arrow icon
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.beginPath();
+      const arrowSize = 30;
+      const arrowX = canvas.width / 2;
+      const arrowY = canvas.height / 2 + 20;
+      
+      // Draw arrow shape
+      ctx.moveTo(arrowX, arrowY + arrowSize);
+      ctx.lineTo(arrowX - arrowSize / 2, arrowY);
+      ctx.lineTo(arrowX + arrowSize / 2, arrowY);
+      ctx.closePath();
+      ctx.fill();
+      
+      return;
+    }
     
     // Draw each layer in order
     imageLayers.forEach(layer => {
@@ -688,6 +714,13 @@ export function LayeredImageGenerator() {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-medium mb-4 text-secondary border-b border-neutral-200 pb-2">Layer Selection</h2>
           
+          <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/10">
+            <p className="text-neutral-700 text-center">
+              <span className="inline-block text-secondary font-medium">👇 Select images in any order you prefer! 👇</span><br/>
+              Choose from each category to build your custom Bani meme.
+            </p>
+          </div>
+          
           {/* Layer Selection Controls - Now using popover/dropdown UI */}
           <div className="grid gap-4 md:grid-cols-3">
             {imageLayers.map((layer) => (
@@ -700,9 +733,17 @@ export function LayeredImageGenerator() {
                       // Toggle dropdown state
                       setOpenDropdown(prev => prev === layer.name ? null : layer.name);
                     }}
-                    className="flex justify-between items-center w-full px-4 py-3 bg-primary text-primary-foreground rounded-md shadow hover:bg-primary/90 transition-colors"
+                    className={`flex justify-between items-center w-full px-4 py-3 ${
+                      selectedImages[layer.name] !== undefined ? 
+                      'bg-primary text-primary-foreground' : 
+                      'bg-primary/20 text-secondary border-2 border-dashed border-primary/30'
+                    } rounded-md shadow hover:bg-primary/90 hover:text-primary-foreground transition-colors`}
                   >
-                    <span className="font-medium">{layer.name}</span>
+                    <span className="font-medium">{
+                      selectedImages[layer.name] !== undefined ? 
+                      layer.name : 
+                      `Select ${layer.name}`
+                    }</span>
                     <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
@@ -744,13 +785,17 @@ export function LayeredImageGenerator() {
                 
                 {/* Show the currently selected image for this layer */}
                 <div className="mt-2 p-2 flex justify-center border border-primary/20 rounded-md bg-primary/5">
-                  <div className="w-16 h-16 bg-white rounded shadow-sm">
-                    {loadedImages[layer.name] && selectedImages[layer.name] !== undefined && (
+                  <div className="w-16 h-16 bg-white rounded shadow-sm flex items-center justify-center">
+                    {loadedImages[layer.name] && selectedImages[layer.name] !== undefined ? (
                       <img 
                         src={layer.images[selectedImages[layer.name]]?.url}
                         alt={`Selected ${layer.name}`}
                         className="w-full h-full object-contain"
                       />
+                    ) : (
+                      <span className="text-neutral-300 text-xs text-center">
+                        No image<br/>selected
+                      </span>
                     )}
                   </div>
                 </div>
