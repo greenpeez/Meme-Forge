@@ -385,17 +385,6 @@ export function LayeredImageGenerator() {
           <h2 className="text-xl font-medium mb-4 text-secondary border-b border-neutral-200 pb-2">Preview</h2>
           
           <div className="flex flex-col items-center">
-            {/* Instructions for resizing */}
-            <div className="mb-4 text-sm bg-primary/10 p-3 rounded-lg max-w-lg text-center">
-              <p className="font-medium text-[#ef6a43] mb-1">Image Editing Tips:</p>
-              <ul className="text-neutral-700 list-disc list-inside space-y-1 text-left">
-                <li><span className="font-medium">Drag images</span> by clicking and moving them</li>
-                <li><span className="font-medium">Resize images</span> by dragging the corner handle</li>
-                <li><span className="font-medium">Double-tap</span> on mobile to reset image size</li>
-                <li><span className="font-medium">Pinch to zoom</span> on mobile to resize images</li>
-              </ul>
-            </div>
-            
             {/* Canvas Preview Area */}
             <div className="canvas-container mb-8 border-4 border-primary/20 rounded-lg overflow-hidden">
               <canvas 
