@@ -81,10 +81,6 @@ const imageLayers: ImageLayer[] = [
         label: "Shiba Costume"
       },
       {
-        url: "/poses/pepe_elephant.png",
-        label: "Pepe Costume"
-      },
-      {
         url: "/poses/penguin_elephant.png",
         label: "Penguin Costume"
       },
