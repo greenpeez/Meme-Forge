@@ -77,10 +77,6 @@ const imageLayers: ImageLayer[] = [
         label: "Soldier Elephant"
       },
       {
-        url: "/poses/rpit.png",
-        label: "Super Saiyan"
-      },
-      {
         url: "/poses/doritos_elephant.png",
         label: "Doritos Lover"
       },
