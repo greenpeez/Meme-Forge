@@ -1,33 +1,12 @@
-
-import type { Express } from "express";
-import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { Client } from "@replit/object-storage";
-
-const client = new Client({
-  bucket: process.env.REPLIT_DEPLOYMENT_ID || "default-bucket"
-});
+import { Express, Request, Response } from "express";
+import { Server } from "http";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Storage route to serve images
-  app.get('/api/storage/*', async (req, res) => {
-    try {
-      const path = req.params[0];
-      const data = await client.get(path);
-      
-      if (!data) {
-        res.status(404).send('Image not found');
-        return;
-      }
-
-      res.type(path.endsWith('.png') ? 'image/png' : 'image/jpeg');
-      res.send(data);
-    } catch (error) {
-      console.error('Error serving image:', error);
-      res.status(404).send('Image not found');
-    }
+  app.get("/health", (_req: Request, res: Response) => {
+    res.json({ status: "ok" });
   });
 
-  const httpServer = createServer(app);
-  return httpServer;
+  return app.listen(5000, "0.0.0.0", () => {
+    console.log("Server running on port 5000");
+  });
 }
