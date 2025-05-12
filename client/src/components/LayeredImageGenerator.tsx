@@ -392,8 +392,8 @@ export function LayeredImageGenerator() {
     });
     
     // Draw text captions with IMPACT font and black outline
-    drawTextWithOutline(ctx, topText, canvas.width / 2, 50, 45, '#FFFFFF', '#000000', 3);
-    drawTextWithOutline(ctx, bottomText, canvas.width / 2, canvas.height - 50, 45, '#FFFFFF', '#000000', 3);
+    drawTextWithOutline(ctx, topText.toUpperCase(), canvas.width / 2, 50, 50, '#FFFFFF', '#000000', 3);
+    drawTextWithOutline(ctx, bottomText.toUpperCase(), canvas.width / 2, canvas.height - 30, 50, '#FFFFFF', '#000000', 3);
   }, [layerObjects, topText, bottomText]);
   
   // Helper function to draw text with outline
@@ -526,25 +526,25 @@ export function LayeredImageGenerator() {
     
     // Add text captions to the high-res image
     if (topText || bottomText) {
-      const scaledFontSize = Math.round(45 * scaleRatio);
+      const scaledFontSize = Math.round(50 * scaleRatio);
       highResCtx.font = `${scaledFontSize}px IMPACT, Arial, sans-serif`;
       highResCtx.textAlign = 'center';
       highResCtx.textBaseline = 'middle';
       
       // Calculate positions
       const topYPosition = 50 * scaleRatio;
-      const bottomYPosition = highResCanvas.height - (50 * scaleRatio);
+      const bottomYPosition = highResCanvas.height - (30 * scaleRatio);
       
       // Draw top text
       if (topText) {
         // Draw outline
         highResCtx.strokeStyle = '#000000';
         highResCtx.lineWidth = 3 * scaleRatio;
-        highResCtx.strokeText(topText, highResCanvas.width / 2, topYPosition);
+        highResCtx.strokeText(topText.toUpperCase(), highResCanvas.width / 2, topYPosition);
         
         // Draw text
         highResCtx.fillStyle = '#FFFFFF';
-        highResCtx.fillText(topText, highResCanvas.width / 2, topYPosition);
+        highResCtx.fillText(topText.toUpperCase(), highResCanvas.width / 2, topYPosition);
       }
       
       // Draw bottom text
@@ -552,11 +552,11 @@ export function LayeredImageGenerator() {
         // Draw outline
         highResCtx.strokeStyle = '#000000';
         highResCtx.lineWidth = 3 * scaleRatio;
-        highResCtx.strokeText(bottomText, highResCanvas.width / 2, bottomYPosition);
+        highResCtx.strokeText(bottomText.toUpperCase(), highResCanvas.width / 2, bottomYPosition);
         
         // Draw text
         highResCtx.fillStyle = '#FFFFFF';
-        highResCtx.fillText(bottomText, highResCanvas.width / 2, bottomYPosition);
+        highResCtx.fillText(bottomText.toUpperCase(), highResCanvas.width / 2, bottomYPosition);
       }
     }
     
@@ -674,7 +674,8 @@ export function LayeredImageGenerator() {
                   value={topText}
                   onChange={(e) => setTopText(e.target.value)}
                   placeholder="Enter top text"
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent uppercase"
+                  style={{ textTransform: 'uppercase' }}
                 />
               </div>
               
@@ -689,7 +690,8 @@ export function LayeredImageGenerator() {
                   value={bottomText}
                   onChange={(e) => setBottomText(e.target.value)}
                   placeholder="Enter bottom text"
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent uppercase"
+                  style={{ textTransform: 'uppercase' }}
                 />
               </div>
             </div>
