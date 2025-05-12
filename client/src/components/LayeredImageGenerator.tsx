@@ -58,6 +58,10 @@ const imageLayers: ImageLayer[] = [
       {
         url: "/backgrounds/wre.png",
         label: "Vintage War"
+      },
+      {
+        url: "/backgrounds/wer.jpg",
+        label: "Jungle Path"
       }
     ]
   },
