@@ -978,7 +978,7 @@ export function LayeredImageGenerator() {
               </ul>
             </div>
             
-            <div className="canvas-container mb-10 border-4 border-primary/20 rounded-lg overflow-hidden">
+            <div className="canvas-container mb-16 border-4 border-primary/20 rounded-lg overflow-hidden">
               <canvas 
                 ref={canvasRef}
                 width="600" 
