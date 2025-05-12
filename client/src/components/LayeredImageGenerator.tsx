@@ -11,15 +11,6 @@ type ImageLayer = {
   images: ImageItem[];
 };
 
-// Define corner positions for resizing
-enum Corner {
-  TopLeft = 'TopLeft',
-  TopRight = 'TopRight',
-  BottomLeft = 'BottomLeft',
-  BottomRight = 'BottomRight',
-  None = 'None'
-}
-
 // Define selected layer object structure
 type LayerObject = {
   url: string;
@@ -29,13 +20,6 @@ type LayerObject = {
   height: number;
   originalWidth: number;
   originalHeight: number;
-  isDragging: boolean;
-  isResizing: boolean;
-  activeCorner: Corner;
-  dragStartX: number;
-  dragStartY: number;
-  cornerOffsetX?: number; // Offset from cursor to actual corner
-  cornerOffsetY?: number; // Offset from cursor to actual corner
 };
 
 // Define the image layers with more descriptive names
@@ -347,80 +331,6 @@ export function LayeredImageGenerator() {
         layerObj.width,
         layerObj.height
       );
-      
-      // Draw resize handles on all four corners
-      const handleSize = 25; // Larger, more visible handles
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.strokeStyle = '#ef6a43'; // Orange color like the text
-      ctx.lineWidth = 3;
-      
-      // Top-left handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x,
-        layerObj.y,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Draw diagonal lines in the top-left handle for better visibility
-      ctx.beginPath();
-      ctx.moveTo(layerObj.x + 5, layerObj.y + 5);
-      ctx.lineTo(layerObj.x + handleSize - 5, layerObj.y + handleSize - 5);
-      ctx.stroke();
-      
-      // Top-right handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x + layerObj.width - handleSize,
-        layerObj.y,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Draw diagonal lines in the top-right handle
-      ctx.beginPath();
-      ctx.moveTo(layerObj.x + layerObj.width - 5, layerObj.y + 5);
-      ctx.lineTo(layerObj.x + layerObj.width - handleSize + 5, layerObj.y + handleSize - 5);
-      ctx.stroke();
-      
-      // Bottom-left handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x,
-        layerObj.y + layerObj.height - handleSize,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Draw diagonal lines in the bottom-left handle
-      ctx.beginPath();
-      ctx.moveTo(layerObj.x + 5, layerObj.y + layerObj.height - 5);
-      ctx.lineTo(layerObj.x + handleSize - 5, layerObj.y + layerObj.height - handleSize + 5);
-      ctx.stroke();
-      
-      // Bottom-right handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x + layerObj.width - handleSize,
-        layerObj.y + layerObj.height - handleSize,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Draw diagonal lines in the bottom-right handle
-      ctx.beginPath();
-      ctx.moveTo(layerObj.x + layerObj.width - 5, layerObj.y + layerObj.height - 5);
-      ctx.lineTo(layerObj.x + layerObj.width - handleSize + 5, layerObj.y + layerObj.height - handleSize + 5);
-      ctx.stroke();
     });
   }, [layerObjects]);
 
