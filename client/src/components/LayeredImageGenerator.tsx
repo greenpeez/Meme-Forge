@@ -259,9 +259,9 @@ export function LayeredImageGenerator() {
         // Auto-fit the image to the canvas while maintaining aspect ratio
         let width, height;
         
-        // Use full canvas dimensions (with just a small margin)
-        const maxWidth = canvas.width * 0.98;  // 98% of canvas width
-        const maxHeight = canvas.height * 0.98; // 98% of canvas height
+        // Use full canvas dimensions (with minimal margin)
+        const maxWidth = canvas.width * 0.995;  // 99.5% of canvas width
+        const maxHeight = canvas.height * 0.995; // 99.5% of canvas height
         
         const aspectRatio = cachedImage.width / cachedImage.height;
         
@@ -390,14 +390,41 @@ export function LayeredImageGenerator() {
     setOpenDropdown(null);
   };
 
-  // Handle download with high resolution
+  // Handle download with high resolution and trim empty space
   const handleDownload = () => {
     if (!canvasRef.current) return;
     
+    // First, find the bounds of the content for cropping
+    const boundingBox = findContentBoundingBox();
+    if (!boundingBox) {
+      // No content to download
+      return;
+    }
+    
+    // Calculate dimensions with a small padding (0.5% padding)
+    const padding = 10; // Pixel padding around the content
+    const contentWidth = boundingBox.maxX - boundingBox.minX + (padding * 2);
+    const contentHeight = boundingBox.maxY - boundingBox.minY + (padding * 2);
+    
+    // Create high-res dimensions while maintaining aspect ratio
+    const maxDimension = 2000; // Maximum dimension
+    const aspectRatio = contentWidth / contentHeight;
+    
+    let highResWidth, highResHeight;
+    if (aspectRatio >= 1) {
+      // Wider than tall
+      highResWidth = maxDimension;
+      highResHeight = maxDimension / aspectRatio;
+    } else {
+      // Taller than wide
+      highResHeight = maxDimension;
+      highResWidth = maxDimension * aspectRatio;
+    }
+    
     // Create a high-resolution canvas for the download
     const highResCanvas = document.createElement('canvas');
-    highResCanvas.width = 2000; // Higher resolution
-    highResCanvas.height = 2000; // Higher resolution
+    highResCanvas.width = Math.round(highResWidth);
+    highResCanvas.height = Math.round(highResHeight);
     const highResCtx = highResCanvas.getContext('2d', { alpha: true });
     
     if (!highResCtx) return;
@@ -413,10 +440,10 @@ export function LayeredImageGenerator() {
       return;
     }
     
-    // Draw each layer at higher resolution
-    const scaleRatio = highResCanvas.width / canvasRef.current.width;
+    // Calculate scale ratio based on the content area
+    const scaleRatio = highResWidth / contentWidth;
     
-    // Draw each layer in order
+    // Draw each layer in order, but only the content area
     imageLayers.forEach(layer => {
       const layerObj = layerObjects[layer.name];
       if (!layerObj) return;
@@ -424,16 +451,20 @@ export function LayeredImageGenerator() {
       const img = imageCache.current[layerObj.url];
       if (!img) return;
       
-      // Calculate the scaled position and size
-      const scaledX = layerObj.x * scaleRatio;
-      const scaledY = layerObj.y * scaleRatio;
+      // Calculate the position and size adjusted for the content area
+      const relativeX = layerObj.x - (boundingBox.minX - padding);
+      const relativeY = layerObj.y - (boundingBox.minY - padding);
+      
+      // Scale to high resolution
+      const scaledX = relativeX * scaleRatio;
+      const scaledY = relativeY * scaleRatio;
       const scaledWidth = layerObj.width * scaleRatio;
       const scaledHeight = layerObj.height * scaleRatio;
       
       // Draw the image at high resolution
       highResCtx.drawImage(
         img,
-        scaledX,
+        scaledX, 
         scaledY,
         scaledWidth,
         scaledHeight
@@ -447,6 +478,36 @@ export function LayeredImageGenerator() {
     link.href = dataUrl;
     link.download = 'bani-meme-transparent.png';
     link.click();
+  };
+  
+  // Helper function to find the bounding box of all visible content
+  const findContentBoundingBox = () => {
+    if (Object.keys(layerObjects).length === 0) {
+      return null;
+    }
+    
+    // Initialize with extreme values
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    
+    // Find the actual content bounds by examining all layer objects
+    Object.values(layerObjects).forEach(layerObj => {
+      // Calculate the edges of this layer
+      const left = layerObj.x;
+      const top = layerObj.y;
+      const right = layerObj.x + layerObj.width;
+      const bottom = layerObj.y + layerObj.height;
+      
+      // Update the bounding box
+      minX = Math.min(minX, left);
+      minY = Math.min(minY, top);
+      maxX = Math.max(maxX, right);
+      maxY = Math.max(maxY, bottom);
+    });
+    
+    return { minX, minY, maxX, maxY };
   };
 
   return (
