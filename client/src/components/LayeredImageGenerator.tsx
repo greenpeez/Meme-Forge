@@ -5,46 +5,46 @@ const imageLayers = [
   {
     name: "Background",
     images: [
-      "https://via.placeholder.com/400/fbd743/FFFFFF?text=Background+1",
-      "https://via.placeholder.com/400/ef6a43/FFFFFF?text=Background+2",
-      "https://via.placeholder.com/400/e6ffe6/FFFFFF?text=Background+3",
-      "https://via.placeholder.com/400/f7e6ff/FFFFFF?text=Background+4",
-      "https://via.placeholder.com/400/e6fffa/FFFFFF?text=Background+5",
-      "https://via.placeholder.com/400/f5f5f5/FFFFFF?text=Background+6",
-      "https://via.placeholder.com/400/ffe6e6/FFFFFF?text=Background+7",
-      "https://via.placeholder.com/400/fffde6/FFFFFF?text=Background+8",
-      "https://via.placeholder.com/400/e6f0ff/FFFFFF?text=Background+9",
-      "https://via.placeholder.com/400/f2e6ff/FFFFFF?text=Background+10"
+      "https://placehold.co/400x400/e6f7ff/cccccc?text=Background+1",
+      "https://placehold.co/400x400/e6ffe6/cccccc?text=Background+2",
+      "https://placehold.co/400x400/fff5e6/cccccc?text=Background+3",
+      "https://placehold.co/400x400/f7e6ff/cccccc?text=Background+4",
+      "https://placehold.co/400x400/e6fffa/cccccc?text=Background+5",
+      "https://placehold.co/400x400/f5f5f5/cccccc?text=Background+6",
+      "https://placehold.co/400x400/ffe6e6/cccccc?text=Background+7",
+      "https://placehold.co/400x400/fffde6/cccccc?text=Background+8",
+      "https://placehold.co/400x400/e6f0ff/cccccc?text=Background+9",
+      "https://placehold.co/400x400/f2e6ff/cccccc?text=Background+10"
     ]
   },
   {
     name: "Pose",
     images: [
-      "https://via.placeholder.com/300/00000000/3F51B5?text=Pose+1",
-      "https://via.placeholder.com/320/00000000/3F51B5?text=Pose+2",
-      "https://via.placeholder.com/310/00000000/3F51B5?text=Pose+3",
-      "https://via.placeholder.com/300/00000000/3F51B5?text=Pose+4",
-      "https://via.placeholder.com/290/00000000/3F51B5?text=Pose+5",
-      "https://via.placeholder.com/310/00000000/3F51B5?text=Pose+6",
-      "https://via.placeholder.com/300/00000000/3F51B5?text=Pose+7",
-      "https://via.placeholder.com/320/00000000/3F51B5?text=Pose+8",
-      "https://via.placeholder.com/290/00000000/3F51B5?text=Pose+9",
-      "https://via.placeholder.com/310/00000000/3F51B5?text=Pose+10"
+      "https://placehold.co/300x300/00000000/3F51B5?text=Pose+1",
+      "https://placehold.co/320x320/00000000/3F51B5?text=Pose+2",
+      "https://placehold.co/310x310/00000000/3F51B5?text=Pose+3",
+      "https://placehold.co/300x300/00000000/3F51B5?text=Pose+4",
+      "https://placehold.co/290x290/00000000/3F51B5?text=Pose+5",
+      "https://placehold.co/310x310/00000000/3F51B5?text=Pose+6",
+      "https://placehold.co/300x300/00000000/3F51B5?text=Pose+7",
+      "https://placehold.co/320x320/00000000/3F51B5?text=Pose+8",
+      "https://placehold.co/290x290/00000000/3F51B5?text=Pose+9",
+      "https://placehold.co/310x310/00000000/3F51B5?text=Pose+10"
     ]
   },
   {
     name: "Accessory",
     images: [
-      "https://via.placeholder.com/200x100/00000000/FF4081?text=Acc+1",
-      "https://via.placeholder.com/180x90/00000000/FF4081?text=Acc+2",
-      "https://via.placeholder.com/220x110/00000000/FF4081?text=Acc+3",
-      "https://via.placeholder.com/190x95/00000000/FF4081?text=Acc+4",
-      "https://via.placeholder.com/210x105/00000000/FF4081?text=Acc+5",
-      "https://via.placeholder.com/200x100/00000000/FF4081?text=Acc+6",
-      "https://via.placeholder.com/180x90/00000000/FF4081?text=Acc+7",
-      "https://via.placeholder.com/220x110/00000000/FF4081?text=Acc+8",
-      "https://via.placeholder.com/190x95/00000000/FF4081?text=Acc+9",
-      "https://via.placeholder.com/210x105/00000000/FF4081?text=Acc+10"
+      "https://placehold.co/200x100/00000000/FF4081?text=Acc+1",
+      "https://placehold.co/180x90/00000000/FF4081?text=Acc+2",
+      "https://placehold.co/220x110/00000000/FF4081?text=Acc+3",
+      "https://placehold.co/190x95/00000000/FF4081?text=Acc+4",
+      "https://placehold.co/210x105/00000000/FF4081?text=Acc+5",
+      "https://placehold.co/200x100/00000000/FF4081?text=Acc+6",
+      "https://placehold.co/180x90/00000000/FF4081?text=Acc+7",
+      "https://placehold.co/220x110/00000000/FF4081?text=Acc+8",
+      "https://placehold.co/190x95/00000000/FF4081?text=Acc+9",
+      "https://placehold.co/210x105/00000000/FF4081?text=Acc+10"
     ]
   }
 ];
@@ -101,8 +101,6 @@ export function LayeredImageGenerator() {
       layer.images.forEach((url, index) => {
         const promise = new Promise<void>((resolve, reject) => {
           const img = new Image();
-          // Add crossOrigin attribute to prevent canvas tainting
-          img.crossOrigin = "anonymous";
           img.src = url;
           
           img.onload = () => {
@@ -173,18 +171,13 @@ export function LayeredImageGenerator() {
   const handleDownload = () => {
     if (isLoading || hasError || !canvasRef.current) return;
     
-    try {
-      const canvas = canvasRef.current;
-      const dataUrl = canvas.toDataURL('image/png');
-      
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = 'bani-meme.png';
-      link.click();
-    } catch (error) {
-      console.error('Failed to download image:', error);
-      alert('Could not download the image. This may be due to cross-origin restrictions with the image sources.');
-    }
+    const canvas = canvasRef.current;
+    const dataUrl = canvas.toDataURL('image/png');
+    
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = 'layered-image.png';
+    link.click();
   };
 
   return (
