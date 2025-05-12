@@ -52,8 +52,8 @@ const imageLayers: ImageLayer[] = [
         label: "Flower Meadow"
       },
       {
-        url: "/backgrounds/wre.jpg",
-        label: "Mountain Peak"
+        url: "/backgrounds/mountain_path.jpg",
+        label: "Mountain Path"
       },
       {
         url: "/backgrounds/wre.png",
