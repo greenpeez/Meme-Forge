@@ -249,18 +249,35 @@ export function LayeredImageGenerator() {
   useEffect(() => {
     if (!canvasRef.current) return;
     
+    console.log("Selection changed, updating layer objects with:", selectedIndexes);
+    
     const canvas = canvasRef.current;
     const updatedLayerObjects: Record<string, LayerObject> = {};
     
     Object.entries(selectedIndexes).forEach(([layerName, index]) => {
+      console.log(`Processing selection: ${layerName} index ${index}`);
+      
       const layer = imageLayers.find(l => l.name === layerName);
-      if (!layer || index === undefined) return;
+      if (!layer || index === undefined) {
+        console.log(`Could not find layer for ${layerName} or index is undefined`);
+        return;
+      }
       
       const imageItem = layer.images[index];
-      if (!imageItem) return;
+      if (!imageItem) {
+        console.log(`Could not find image item for ${layerName} at index ${index}`);
+        return;
+      }
+      
+      console.log(`Found image item: ${imageItem.url}`);
       
       const cachedImage = imageCache.current[imageItem.url];
-      if (!cachedImage) return;
+      if (!cachedImage) {
+        console.log(`Could not find cached image for URL: ${imageItem.url}`);
+        return;
+      }
+      
+      console.log(`Found cached image with dimensions: ${cachedImage.width}x${cachedImage.height}`);
       
       // Check if we already have this layer positioned
       const existingLayer = layerObjects[layerName];
@@ -405,7 +422,11 @@ export function LayeredImageGenerator() {
     
     // Helper to check which resize handle contains a point
     const getCornerAtPoint = (x: number, y: number, layer: LayerObject): Corner => {
-      const handleSize = 20; // Larger for easier grabbing
+      const handleSize = 40; // Much larger for easier grabbing
+      
+      // Debug layer bounds
+      console.log("Testing point", x, y, "against layer", layer.url, "at", 
+                  layer.x, layer.y, layer.width, layer.height);
       
       // Check top-left corner
       if (
@@ -414,6 +435,7 @@ export function LayeredImageGenerator() {
         y >= layer.y &&
         y <= layer.y + handleSize
       ) {
+        console.log("Hit top-left corner!");
         return Corner.TopLeft;
       }
       
@@ -424,6 +446,7 @@ export function LayeredImageGenerator() {
         y >= layer.y &&
         y <= layer.y + handleSize
       ) {
+        console.log("Hit top-right corner!");
         return Corner.TopRight;
       }
       
@@ -434,6 +457,7 @@ export function LayeredImageGenerator() {
         y >= layer.y + layer.height - handleSize &&
         y <= layer.y + layer.height
       ) {
+        console.log("Hit bottom-left corner!");
         return Corner.BottomLeft;
       }
       
@@ -444,6 +468,7 @@ export function LayeredImageGenerator() {
         y >= layer.y + layer.height - handleSize &&
         y <= layer.y + layer.height
       ) {
+        console.log("Hit bottom-right corner!");
         return Corner.BottomRight;
       }
       
@@ -467,6 +492,12 @@ export function LayeredImageGenerator() {
       const y = e.clientY - rect.top;
       
       console.log("Mouse down at:", x, y);
+      console.log("Current layers:", Object.keys(layerObjects));
+      
+      if (Object.keys(layerObjects).length === 0) {
+        console.log("No layers to interact with");
+        return;
+      }
       
       // Process layers in reverse to handle top layers first
       const layerNames = Object.keys(layerObjects);
@@ -932,6 +963,8 @@ export function LayeredImageGenerator() {
 
   // Handle layer selection
   const handleSelectLayer = (layerName: string, index: number) => {
+    console.log(`Selecting ${layerName} index ${index}`);
+    
     setSelectedIndexes(prev => ({
       ...prev,
       [layerName]: index
@@ -976,6 +1009,117 @@ export function LayeredImageGenerator() {
                 <li><span className="font-medium">Double-tap</span> on mobile to reset image size</li>
                 <li><span className="font-medium">Pinch to zoom</span> on mobile to resize images</li>
               </ul>
+            </div>
+            
+            {/* Debugging Tools */}
+            <div className="mb-4 flex flex-wrap gap-2 bg-gray-100 p-2 rounded-lg">
+              <button
+                onClick={() => {
+                  handleSelectLayer("Background", 0);
+                }}
+                className="px-3 py-1 bg-blue-500 text-white rounded"
+              >
+                Add Background
+              </button>
+              <button
+                onClick={() => {
+                  console.log("Current layers:", layerObjects);
+                }}
+                className="px-3 py-1 bg-green-500 text-white rounded"
+              >
+                Log Layers
+              </button>
+              <button
+                onClick={() => {
+                  if (Object.keys(layerObjects).length > 0) {
+                    const layerName = Object.keys(layerObjects)[0];
+                    const layerObj = layerObjects[layerName];
+                    
+                    // Create a copy of the layer with a modified resize flag to test
+                    setLayerObjects(prev => ({
+                      ...prev,
+                      [layerName]: {
+                        ...layerObj,
+                        isResizing: true,
+                        activeCorner: Corner.BottomRight
+                      }
+                    }));
+                    
+                    setIsResizing(true);
+                    setActiveLayer(layerName);
+                    
+                    console.log("Set resize mode on", layerName);
+                  }
+                }}
+                className="px-3 py-1 bg-red-500 text-white rounded"
+              >
+                Force Resize Mode
+              </button>
+              <button
+                onClick={() => {
+                  if (Object.keys(layerObjects).length > 0) {
+                    const layerName = Object.keys(layerObjects)[0];
+                    const layerObj = layerObjects[layerName];
+                    
+                    // Draw visible resize handles
+                    const canvas = canvasRef.current;
+                    if (!canvas) return;
+                    
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return;
+                    
+                    // Draw each layer
+                    imageLayers.forEach(layer => {
+                      const obj = layerObjects[layer.name];
+                      if (!obj) return;
+                      
+                      const cachedImage = imageCache.current[obj.url];
+                      if (!cachedImage) return;
+                      
+                      // Draw the image
+                      ctx.drawImage(
+                        cachedImage,
+                        obj.x,
+                        obj.y,
+                        obj.width,
+                        obj.height
+                      );
+                    });
+                    
+                    const handleSize = 40;
+                    
+                    // Draw VERY visible resize handles with labels
+                    const handles = [
+                      { corner: "TopLeft", x: layerObj.x, y: layerObj.y },
+                      { corner: "TopRight", x: layerObj.x + layerObj.width - handleSize, y: layerObj.y },
+                      { corner: "BottomLeft", x: layerObj.x, y: layerObj.y + layerObj.height - handleSize },
+                      { corner: "BottomRight", x: layerObj.x + layerObj.width - handleSize, y: layerObj.y + layerObj.height - handleSize }
+                    ];
+                    
+                    handles.forEach(handle => {
+                      // Draw a very bright resize handle
+                      ctx.fillStyle = 'rgba(255, 0, 0, 0.7)';
+                      ctx.strokeStyle = 'white';
+                      ctx.lineWidth = 2;
+                      
+                      ctx.beginPath();
+                      ctx.rect(handle.x, handle.y, handleSize, handleSize);
+                      ctx.fill();
+                      ctx.stroke();
+                      
+                      // Add label
+                      ctx.fillStyle = 'white';
+                      ctx.font = 'bold 12px Arial';
+                      ctx.fillText(handle.corner, handle.x + 5, handle.y + 20);
+                    });
+                    
+                    console.log("Drew visible resize handles for", layerName);
+                  }
+                }}
+                className="px-3 py-1 bg-purple-500 text-white rounded"
+              >
+                Draw BIG Handles
+              </button>
             </div>
             
             <div className="canvas-container mb-6 border-4 border-primary/20 rounded-lg overflow-hidden">
