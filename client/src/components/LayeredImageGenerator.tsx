@@ -401,8 +401,8 @@ export function LayeredImageGenerator() {
       return;
     }
     
-    // Calculate dimensions with a small padding (0.5% padding)
-    const padding = 10; // Pixel padding around the content
+    // Calculate dimensions with no padding to remove borders
+    const padding = 0; // No padding to eliminate borders completely
     const contentWidth = boundingBox.maxX - boundingBox.minX + (padding * 2);
     const contentHeight = boundingBox.maxY - boundingBox.minY + (padding * 2);
     
@@ -425,7 +425,13 @@ export function LayeredImageGenerator() {
     const highResCanvas = document.createElement('canvas');
     highResCanvas.width = Math.round(highResWidth);
     highResCanvas.height = Math.round(highResHeight);
-    const highResCtx = highResCanvas.getContext('2d', { alpha: true });
+    
+    // Ensure alpha channel is enabled for transparency
+    const highResCtx = highResCanvas.getContext('2d', { 
+      alpha: true,
+      willReadFrequently: true,
+      desynchronized: false
+    });
     
     if (!highResCtx) return;
     
@@ -482,31 +488,48 @@ export function LayeredImageGenerator() {
   
   // Helper function to find the bounding box of all visible content
   const findContentBoundingBox = () => {
-    if (Object.keys(layerObjects).length === 0) {
+    if (!canvasRef.current || Object.keys(layerObjects).length === 0) {
       return null;
     }
     
-    // Initialize with extreme values
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
+    // Get the canvas current size
+    const canvas = canvasRef.current;
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    
+    // Calculate visible content bounds
+    let minX = canvasWidth; // Start with canvas edge
+    let minY = canvasHeight; // Start with canvas edge
+    let maxX = 0; // Start from left edge
+    let maxY = 0; // Start from top edge
     
     // Find the actual content bounds by examining all layer objects
     Object.values(layerObjects).forEach(layerObj => {
-      // Calculate the edges of this layer
-      const left = layerObj.x;
-      const top = layerObj.y;
-      const right = layerObj.x + layerObj.width;
-      const bottom = layerObj.y + layerObj.height;
+      // Get image from cache
+      const img = imageCache.current[layerObj.url];
+      if (!img) return;
       
-      // Update the bounding box
-      minX = Math.min(minX, left);
-      minY = Math.min(minY, top);
-      maxX = Math.max(maxX, right);
-      maxY = Math.max(maxY, bottom);
+      // Calculate the edges of this layer
+      const left = Math.max(0, layerObj.x);
+      const top = Math.max(0, layerObj.y);
+      const right = Math.min(canvasWidth, layerObj.x + layerObj.width);
+      const bottom = Math.min(canvasHeight, layerObj.y + layerObj.height);
+      
+      // Only update bounds if this layer is visible
+      if (right > left && bottom > top) {
+        minX = Math.min(minX, left);
+        minY = Math.min(minY, top);
+        maxX = Math.max(maxX, right);
+        maxY = Math.max(maxY, bottom);
+      }
     });
     
+    // Handle edge case: no valid content found
+    if (minX >= maxX || minY >= maxY) {
+      return null;
+    }
+    
+    // Return the tight bounding box
     return { minX, minY, maxX, maxY };
   };
 
