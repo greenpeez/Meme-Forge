@@ -618,14 +618,9 @@ export function LayeredImageGenerator() {
 
   return (
     <div className="layered-image-generator mx-auto p-4 max-w-7xl bg-transparent">
-      <header className="mb-6 text-center">
-        <h1 className="text-3xl font-bold text-secondary">Bani Meme Generator</h1>
-      </header>
-
       <div className="flex flex-col space-y-6">
         {/* Canvas Display Panel */}
         <div className="bg-transparent p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-medium mb-4 text-secondary border-b border-neutral-200 pb-2">Preview</h2>
           
           <div className="flex flex-col items-center">
             {/* Canvas Preview Area */}
@@ -737,7 +732,7 @@ export function LayeredImageGenerator() {
                   {/* Dropdown content */}
                   <div 
                     id={`dropdown-${layer.name}`} 
-                    className={`${openDropdown === layer.name ? 'block' : 'hidden'} absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border border-neutral-200`}
+                    className={`${openDropdown === layer.name ? 'block' : 'hidden'} absolute z-20 mt-2 w-full bg-primary rounded-md shadow-lg border border-primary/50`}
                   >
                     <div className="max-h-60 overflow-y-auto p-3">
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -752,7 +747,7 @@ export function LayeredImageGenerator() {
                               onChange={() => handleSelectLayer(layer.name, index)}
                             />
                             <div className="border-2 border-transparent hover:border-primary rounded-md overflow-hidden transition-all p-1">
-                              <div className="aspect-square bg-white rounded flex items-center justify-center">
+                              <div className="aspect-square bg-primary rounded flex items-center justify-center">
                                 <img 
                                   src={image.url} 
                                   alt={image.label}
@@ -768,8 +763,8 @@ export function LayeredImageGenerator() {
                 </div>
                 
                 {/* Selected thumbnail */}
-                <div className="mt-2 p-2 flex justify-center border border-primary/20 rounded-md bg-primary/5">
-                  <div className="w-16 h-16 bg-white rounded shadow-sm flex items-center justify-center">
+                <div className="mt-2 p-2 flex justify-center border border-primary/20 rounded-md bg-primary/20">
+                  <div className="w-16 h-16 bg-primary rounded shadow-sm flex items-center justify-center">
                     {selectedIndexes[layer.name] !== undefined ? (
                       <img 
                         src={layer.images[selectedIndexes[layer.name]]?.url}
