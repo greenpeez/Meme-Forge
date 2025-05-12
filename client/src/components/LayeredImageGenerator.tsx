@@ -5,16 +5,16 @@ const imageLayers = [
   {
     name: "Background",
     images: [
-      "https://placehold.co/400x400/e6f7ff/cccccc?text=Background+1",
-      "https://placehold.co/400x400/e6ffe6/cccccc?text=Background+2",
-      "https://placehold.co/400x400/fff5e6/cccccc?text=Background+3",
-      "https://placehold.co/400x400/f7e6ff/cccccc?text=Background+4",
-      "https://placehold.co/400x400/e6fffa/cccccc?text=Background+5",
-      "https://placehold.co/400x400/f5f5f5/cccccc?text=Background+6",
-      "https://placehold.co/400x400/ffe6e6/cccccc?text=Background+7",
-      "https://placehold.co/400x400/fffde6/cccccc?text=Background+8",
-      "https://placehold.co/400x400/e6f0ff/cccccc?text=Background+9",
-      "https://placehold.co/400x400/f2e6ff/cccccc?text=Background+10"
+      "/api/storage/backgrounds/bg-1.png", // Beach
+      "/api/storage/backgrounds/bg-2.png", // Tokyo
+      "/api/storage/backgrounds/bg-3.png", // Forest
+      "/api/storage/backgrounds/bg-4.png", // Mountain
+      "/api/storage/backgrounds/bg-5.png", // Future City
+      "/api/storage/backgrounds/bg-6.png", // Race Track
+      "/api/storage/backgrounds/bg-7.png", // Flower Field
+      "/api/storage/backgrounds/bg-8.png", // Sunset
+      "/api/storage/backgrounds/bg-9.png", // Trenches
+      "/api/storage/backgrounds/bg-10.png", // Your next image
     ]
   },
   {
