@@ -978,7 +978,8 @@ export function LayeredImageGenerator() {
               </ul>
             </div>
             
-            <div className="canvas-container mb-16 border-4 border-primary/20 rounded-lg overflow-hidden">
+            {/* Canvas Preview Area */}
+            <div className="canvas-container mb-8 border-4 border-primary/20 rounded-lg overflow-hidden">
               <canvas 
                 ref={canvasRef}
                 width="600" 
@@ -1008,17 +1009,22 @@ export function LayeredImageGenerator() {
               </div>
             )}
             
+            {/* Spacer div to create separation between canvas and button */}
+            <div className="h-8"></div>
+            
             {/* Download button */}
-            <button 
-              onClick={handleDownload}
-              disabled={isLoading || Object.keys(layerObjects).length === 0}
-              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-3 rounded-md font-medium transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mb-4"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Download
-            </button>
+            <div className="flex justify-center mt-4 mb-6">
+              <button 
+                onClick={handleDownload}
+                disabled={isLoading || Object.keys(layerObjects).length === 0}
+                className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-3 rounded-md font-medium transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download
+              </button>
+            </div>
           </div>
         </div>
         
