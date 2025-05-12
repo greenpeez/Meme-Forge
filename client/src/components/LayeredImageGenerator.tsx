@@ -62,10 +62,6 @@ const imageLayers: ImageLayer[] = [
       {
         url: "/backgrounds/wre.png",
         label: "Vintage War"
-      },
-      {
-        url: "/backgrounds/20250512_1319_Trench Soldiers_remix_01jv26wejqer1vbx83eeacfm89.png",
-        label: "Trench Soldiers"
       }
     ]
   },
