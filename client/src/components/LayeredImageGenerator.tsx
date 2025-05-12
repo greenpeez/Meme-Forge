@@ -72,7 +72,22 @@ const imageLayers: ImageLayer[] = [
         url: "/poses/etyr.png",
         label: "Happy Elephant"
       },
-
+      {
+        url: "/poses/doritos_elephant.png",
+        label: "Doritos Lover"
+      },
+      {
+        url: "/poses/shiba_elephant.png",
+        label: "Shiba Costume"
+      },
+      {
+        url: "/poses/pepe_elephant.png",
+        label: "Pepe Costume"
+      },
+      {
+        url: "/poses/penguin_elephant.png",
+        label: "Penguin Costume"
+      },
       {
         url: "/poses/elephant_beanie.png",
         label: "Beanie Elephant"
