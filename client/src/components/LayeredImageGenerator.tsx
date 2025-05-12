@@ -310,6 +310,12 @@ export function LayeredImageGenerator() {
     setLayerObjects(updatedLayerObjects);
   }, [selectedIndexes]);
 
+  // Separate overlay for resize handles
+  const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
+  
+  // Create DOM elements for resize handles instead of drawing them on canvas
+  const resizeHandlesRef = useRef<HTMLDivElement | null>(null);
+  
   // Draw canvas when layer objects change
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -343,6 +349,11 @@ export function LayeredImageGenerator() {
       ctx.closePath();
       ctx.fill();
       
+      // Clear any resize handles if they exist
+      if (resizeHandlesRef.current) {
+        resizeHandlesRef.current.innerHTML = '';
+      }
+      
       return;
     }
     
@@ -362,58 +373,404 @@ export function LayeredImageGenerator() {
         layerObj.width,
         layerObj.height
       );
+    });
+    
+    // Update HTML resize handles over the canvas
+    const resizeHandlesContainer = resizeHandlesRef.current;
+    if (!resizeHandlesContainer) return;
+    
+    // Clear existing handles
+    resizeHandlesContainer.innerHTML = '';
       
-      // Draw resize handles on all four corners
-      const handleSize = 15;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.strokeStyle = '#fbd743';
-      ctx.lineWidth = 2;
+    const canvasRect = canvas.getBoundingClientRect();
+    const handleSize = 30; // Larger for easier grabbing
+    
+    // Only create handles if we have layers
+    if (Object.keys(layerObjects).length === 0) return;
+    
+    Object.entries(layerObjects).forEach(([layerName, layerObj]) => {
+      // Create handles for each corner of the layer
+      const corners = [
+        { name: Corner.TopLeft, x: layerObj.x, y: layerObj.y },
+        { name: Corner.TopRight, x: layerObj.x + layerObj.width - handleSize, y: layerObj.y },
+        { name: Corner.BottomLeft, x: layerObj.x, y: layerObj.y + layerObj.height - handleSize },
+        { name: Corner.BottomRight, x: layerObj.x + layerObj.width - handleSize, y: layerObj.y + layerObj.height - handleSize }
+      ];
       
-      // Top-left handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x,
-        layerObj.y,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Top-right handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x + layerObj.width - handleSize,
-        layerObj.y,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Bottom-left handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x,
-        layerObj.y + layerObj.height - handleSize,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Bottom-right handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x + layerObj.width - handleSize,
-        layerObj.y + layerObj.height - handleSize,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
+      corners.forEach(corner => {
+        const handle = document.createElement('div');
+        handle.className = 'resize-handle';
+        handle.style.position = 'absolute';
+        handle.style.width = `${handleSize}px`;
+        handle.style.height = `${handleSize}px`;
+        handle.style.background = 'rgba(255, 215, 67, 0.8)';
+        handle.style.border = '2px solid white';
+        handle.style.borderRadius = '4px';
+        handle.style.cursor = 
+          (corner.name === Corner.TopLeft || corner.name === Corner.BottomRight) 
+            ? 'nwse-resize' 
+            : 'nesw-resize';
+        handle.style.zIndex = '100';
+        handle.style.left = `${corner.x}px`;
+        handle.style.top = `${corner.y}px`;
+        
+        // Track this corner and layer for use in event handlers
+        handle.dataset.corner = corner.name;
+        handle.dataset.layer = layerName;
+        
+        // Add event listeners for this handle
+        handle.addEventListener('mousedown', handleResizeStart);
+        handle.addEventListener('touchstart', handleResizeTouchStart);
+        
+        resizeHandlesContainer.appendChild(handle);
+        
+        console.log(`Created resize handle for ${layerName} at ${corner.name}: x=${corner.x}, y=${corner.y}`);
+      });
     });
   }, [layerObjects]);
+  
+  // Handle resize start from DOM handle elements
+  const handleResizeStart = (e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const target = e.currentTarget as HTMLElement;
+    const cornerName = target.dataset.corner as Corner;
+    const layerName = target.dataset.layer as string;
+    
+    if (!cornerName || !layerName || !layerObjects[layerName]) {
+      console.log("Invalid resize handle:", target.dataset);
+      return;
+    }
+    
+    console.log(`Starting resize on ${layerName} from corner ${cornerName}`);
+    
+    const layerObj = layerObjects[layerName];
+    
+    // Set active resize state
+    setActiveLayer(layerName);
+    setIsResizing(true);
+    
+    // Update the resize state on the layer
+    setLayerObjects(prev => ({
+      ...prev,
+      [layerName]: {
+        ...layerObj,
+        isResizing: true,
+        activeCorner: cornerName as Corner,
+        dragStartX: e.clientX,
+        dragStartY: e.clientY
+      }
+    }));
+    
+    // Add global mouse move and up handlers
+    document.addEventListener('mousemove', handleResizeMove);
+    document.addEventListener('mouseup', handleResizeEnd);
+  };
+  
+  // Handle touch start from DOM handle elements
+  const handleResizeTouchStart = (e: TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (e.touches.length !== 1) return;
+    
+    const touch = e.touches[0];
+    const target = e.currentTarget as HTMLElement;
+    const cornerName = target.dataset.corner as Corner;
+    const layerName = target.dataset.layer as string;
+    
+    if (!cornerName || !layerName || !layerObjects[layerName]) {
+      console.log("Invalid resize handle:", target.dataset);
+      return;
+    }
+    
+    console.log(`Starting touch resize on ${layerName} from corner ${cornerName}`);
+    
+    const layerObj = layerObjects[layerName];
+    
+    // Set active resize state
+    setActiveLayer(layerName);
+    setIsResizing(true);
+    
+    // Update the resize state on the layer
+    setLayerObjects(prev => ({
+      ...prev,
+      [layerName]: {
+        ...layerObj,
+        isResizing: true,
+        activeCorner: cornerName as Corner,
+        dragStartX: touch.clientX,
+        dragStartY: touch.clientY
+      }
+    }));
+    
+    // Add global touch handlers
+    document.addEventListener('touchmove', handleResizeTouchMove);
+    document.addEventListener('touchend', handleResizeTouchEnd);
+    document.addEventListener('touchcancel', handleResizeTouchEnd);
+  };
+  
+  // Global handlers for resize operations
+  const handleResizeMove = (e: MouseEvent) => {
+    if (!isResizing || !activeLayer) return;
+    
+    const layerObj = layerObjects[activeLayer];
+    if (!layerObj) return;
+    
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    
+    // Calculate mouse position relative to canvas
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    
+    // Calculate deltas from the start position
+    const deltaX = mouseX - layerObj.dragStartX;
+    const deltaY = mouseY - layerObj.dragStartY;
+    
+    // Variables to store new position and dimensions
+    let newX = layerObj.x;
+    let newY = layerObj.y;
+    let newWidth = layerObj.width;
+    let newHeight = layerObj.height;
+    
+    const aspectRatio = layerObj.originalWidth / layerObj.originalHeight;
+    
+    // Handle different corners
+    switch (layerObj.activeCorner) {
+      case Corner.TopLeft:
+        // Update position and size inversely
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, layerObj.width - deltaX);
+          newHeight = newWidth / aspectRatio;
+          newX = layerObj.x + (layerObj.width - newWidth);
+          newY = layerObj.y + (layerObj.height - newHeight);
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, layerObj.height - deltaY);
+          newWidth = newHeight * aspectRatio;
+          newX = layerObj.x + (layerObj.width - newWidth);
+          newY = layerObj.y + (layerObj.height - newHeight);
+        }
+        break;
+        
+      case Corner.TopRight:
+        // Update y-position and size
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, layerObj.width + deltaX);
+          newHeight = newWidth / aspectRatio;
+          newY = layerObj.y + (layerObj.height - newHeight);
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, layerObj.height - deltaY);
+          newWidth = newHeight * aspectRatio;
+          newY = layerObj.y + (layerObj.height - newHeight);
+        }
+        break;
+        
+      case Corner.BottomLeft:
+        // Update x-position and size
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, layerObj.width - deltaX);
+          newHeight = newWidth / aspectRatio;
+          newX = layerObj.x + (layerObj.width - newWidth);
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, layerObj.height + deltaY);
+          newWidth = newHeight * aspectRatio;
+          newX = layerObj.x + (layerObj.width - newWidth);
+        }
+        break;
+        
+      case Corner.BottomRight:
+        // Simple resize from bottom-right
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, layerObj.width + deltaX);
+          newHeight = newWidth / aspectRatio;
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, layerObj.height + deltaY);
+          newWidth = newHeight * aspectRatio;
+        }
+        break;
+    }
+    
+    // Update layer dimensions and position
+    setLayerObjects(prev => ({
+      ...prev,
+      [activeLayer]: {
+        ...layerObj,
+        x: newX,
+        y: newY,
+        width: newWidth,
+        height: newHeight,
+        dragStartX: mouseX,
+        dragStartY: mouseY
+      }
+    }));
+  };
+  
+  const handleResizeEnd = () => {
+    // Remove global event listeners
+    document.removeEventListener('mousemove', handleResizeMove);
+    document.removeEventListener('mouseup', handleResizeEnd);
+    
+    if (!activeLayer) return;
+    
+    // Reset the resize state
+    setIsResizing(false);
+    
+    setLayerObjects(prev => {
+      if (!prev[activeLayer]) return prev;
+      
+      return {
+        ...prev,
+        [activeLayer]: {
+          ...prev[activeLayer],
+          isResizing: false
+        }
+      };
+    });
+    
+    setActiveLayer(null);
+  };
+  
+  const handleResizeTouchMove = (e: TouchEvent) => {
+    if (!isResizing || !activeLayer) return;
+    
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    
+    const layerObj = layerObjects[activeLayer];
+    if (!layerObj) return;
+    
+    // Continue with similar logic to mouse move
+    const mouseX = touch.clientX;
+    const mouseY = touch.clientY;
+    
+    // The rest is the same as handleResizeMove
+    // Calculate deltas from the start position
+    const deltaX = mouseX - layerObj.dragStartX;
+    const deltaY = mouseY - layerObj.dragStartY;
+    
+    // Variables to store new position and dimensions
+    let newX = layerObj.x;
+    let newY = layerObj.y;
+    let newWidth = layerObj.width;
+    let newHeight = layerObj.height;
+    
+    const aspectRatio = layerObj.originalWidth / layerObj.originalHeight;
+    
+    // Handle based on corner (same switch logic)
+    switch (layerObj.activeCorner) {
+      case Corner.TopLeft:
+        // Update position and size inversely
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, layerObj.width - deltaX);
+          newHeight = newWidth / aspectRatio;
+          newX = layerObj.x + (layerObj.width - newWidth);
+          newY = layerObj.y + (layerObj.height - newHeight);
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, layerObj.height - deltaY);
+          newWidth = newHeight * aspectRatio;
+          newX = layerObj.x + (layerObj.width - newWidth);
+          newY = layerObj.y + (layerObj.height - newHeight);
+        }
+        break;
+        
+      case Corner.TopRight:
+        // Update y-position and size
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, layerObj.width + deltaX);
+          newHeight = newWidth / aspectRatio;
+          newY = layerObj.y + (layerObj.height - newHeight);
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, layerObj.height - deltaY);
+          newWidth = newHeight * aspectRatio;
+          newY = layerObj.y + (layerObj.height - newHeight);
+        }
+        break;
+        
+      case Corner.BottomLeft:
+        // Update x-position and size
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, layerObj.width - deltaX);
+          newHeight = newWidth / aspectRatio;
+          newX = layerObj.x + (layerObj.width - newWidth);
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, layerObj.height + deltaY);
+          newWidth = newHeight * aspectRatio;
+          newX = layerObj.x + (layerObj.width - newWidth);
+        }
+        break;
+        
+      case Corner.BottomRight:
+        // Simple resize from bottom-right
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, layerObj.width + deltaX);
+          newHeight = newWidth / aspectRatio;
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, layerObj.height + deltaY);
+          newWidth = newHeight * aspectRatio;
+        }
+        break;
+    }
+    
+    // Update layer
+    setLayerObjects(prev => ({
+      ...prev,
+      [activeLayer]: {
+        ...layerObj,
+        x: newX,
+        y: newY,
+        width: newWidth,
+        height: newHeight,
+        dragStartX: mouseX,
+        dragStartY: mouseY
+      }
+    }));
+  };
+  
+  const handleResizeTouchEnd = () => {
+    // Remove touch handlers
+    document.removeEventListener('touchmove', handleResizeTouchMove);
+    document.removeEventListener('touchend', handleResizeTouchEnd);
+    document.removeEventListener('touchcancel', handleResizeTouchEnd);
+    
+    if (!activeLayer) return;
+    
+    // Reset the resize state
+    setIsResizing(false);
+    
+    setLayerObjects(prev => {
+      if (!prev[activeLayer]) return prev;
+      
+      return {
+        ...prev,
+        [activeLayer]: {
+          ...prev[activeLayer],
+          isResizing: false
+        }
+      };
+    });
+    
+    setActiveLayer(null);
+  };
 
   // Set up mouse and touch event handlers
   useEffect(() => {
@@ -1122,13 +1479,20 @@ export function LayeredImageGenerator() {
               </button>
             </div>
             
-            <div className="canvas-container mb-6 border-4 border-primary/20 rounded-lg overflow-hidden">
+            <div className="canvas-container mb-6 border-4 border-primary/20 rounded-lg overflow-hidden relative">
               <canvas 
                 ref={canvasRef}
                 width="600" 
                 height="600" 
                 className={`max-w-full h-auto ${isLoading ? 'opacity-50' : 'opacity-100'} bg-white`}
               />
+              {/* Container for resize handles - positioned absolutely over the canvas */}
+              <div 
+                ref={resizeHandlesRef} 
+                className="absolute top-0 left-0 w-full h-full"
+              >
+                {/* Resize handles will be dynamically created here */}
+              </div>
             </div>
             
             {/* Loading indicator */}
