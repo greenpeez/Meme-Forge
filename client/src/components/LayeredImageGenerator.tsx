@@ -1,50 +1,151 @@
 import { useEffect, useRef, useState } from "react";
 
-// Define the image layers
-const imageLayers = [
+// Define image layer types
+type ImageItem = {
+  url: string;
+  label: string;
+};
+
+type ImageLayer = {
+  name: string;
+  images: ImageItem[];
+};
+
+// Define the image layers with more descriptive names
+const imageLayers: ImageLayer[] = [
   {
     name: "Background",
     images: [
-      "https://placehold.co/400x400/e6f7ff/cccccc?text=Background+1",
-      "https://placehold.co/400x400/e6ffe6/cccccc?text=Background+2",
-      "https://placehold.co/400x400/fff5e6/cccccc?text=Background+3",
-      "https://placehold.co/400x400/f7e6ff/cccccc?text=Background+4",
-      "https://placehold.co/400x400/e6fffa/cccccc?text=Background+5",
-      "https://placehold.co/400x400/f5f5f5/cccccc?text=Background+6",
-      "https://placehold.co/400x400/ffe6e6/cccccc?text=Background+7",
-      "https://placehold.co/400x400/fffde6/cccccc?text=Background+8",
-      "https://placehold.co/400x400/e6f0ff/cccccc?text=Background+9",
-      "https://placehold.co/400x400/f2e6ff/cccccc?text=Background+10"
+      {
+        url: "/images/backgrounds/sunset.png",
+        label: "Sunset Beach"
+      },
+      {
+        url: "/images/backgrounds/trench.png",
+        label: "Vintage War"
+      },
+      {
+        url: "https://images.unsplash.com/photo-1520454974749-611b7248ffdb?q=80&w=400&h=400&auto=format&fit=crop",
+        label: "Coastal Paradise"
+      },
+      {
+        url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=400&h=400&auto=format&fit=crop",
+        label: "Mountain Lake"
+      },
+      {
+        url: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=400&h=400&auto=format&fit=crop",
+        label: "Spring Hills"
+      },
+      {
+        url: "https://images.unsplash.com/photo-1528164344705-47542687000d?q=80&w=400&h=400&auto=format&fit=crop",
+        label: "City Skyline"
+      },
+      {
+        url: "https://images.unsplash.com/photo-1579546929662-711aa81148cf?q=80&w=400&h=400&auto=format&fit=crop",
+        label: "Neon Glow"
+      },
+      {
+        url: "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=400&h=400&auto=format&fit=crop",
+        label: "Colorful Gradient"
+      },
+      {
+        url: "https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569_1280.jpg",
+        label: "Night Sky"
+      },
+      {
+        url: "https://cdn.pixabay.com/photo/2016/11/23/13/48/beach-1852945_1280.jpg",
+        label: "Tropical Beach"
+      }
     ]
   },
   {
     name: "Pose",
     images: [
-      "https://placehold.co/300x300/00000000/3F51B5?text=Pose+1",
-      "https://placehold.co/320x320/00000000/3F51B5?text=Pose+2",
-      "https://placehold.co/310x310/00000000/3F51B5?text=Pose+3",
-      "https://placehold.co/300x300/00000000/3F51B5?text=Pose+4",
-      "https://placehold.co/290x290/00000000/3F51B5?text=Pose+5",
-      "https://placehold.co/310x310/00000000/3F51B5?text=Pose+6",
-      "https://placehold.co/300x300/00000000/3F51B5?text=Pose+7",
-      "https://placehold.co/320x320/00000000/3F51B5?text=Pose+8",
-      "https://placehold.co/290x290/00000000/3F51B5?text=Pose+9",
-      "https://placehold.co/310x310/00000000/3F51B5?text=Pose+10"
+      {
+        url: "https://placehold.co/300x300/00000000/3F51B5?text=Pose+1",
+        label: "Standard Pose"
+      },
+      {
+        url: "https://placehold.co/320x320/00000000/3F51B5?text=Pose+2",
+        label: "Action Pose"
+      },
+      {
+        url: "https://placehold.co/310x310/00000000/3F51B5?text=Pose+3",
+        label: "Sitting Pose"
+      },
+      {
+        url: "https://placehold.co/300x300/00000000/3F51B5?text=Pose+4",
+        label: "Jumping Pose"
+      },
+      {
+        url: "https://placehold.co/290x290/00000000/3F51B5?text=Pose+5",
+        label: "Running Pose"
+      },
+      {
+        url: "https://placehold.co/310x310/00000000/3F51B5?text=Pose+6",
+        label: "Laughing Pose"
+      },
+      {
+        url: "https://placehold.co/300x300/00000000/3F51B5?text=Pose+7",
+        label: "Thinking Pose"
+      },
+      {
+        url: "https://placehold.co/320x320/00000000/3F51B5?text=Pose+8",
+        label: "Dancing Pose"
+      },
+      {
+        url: "https://placehold.co/290x290/00000000/3F51B5?text=Pose+9",
+        label: "Waving Pose"
+      },
+      {
+        url: "https://placehold.co/310x310/00000000/3F51B5?text=Pose+10",
+        label: "Flying Pose"
+      }
     ]
   },
   {
     name: "Accessory",
     images: [
-      "https://placehold.co/200x100/00000000/FF4081?text=Acc+1",
-      "https://placehold.co/180x90/00000000/FF4081?text=Acc+2",
-      "https://placehold.co/220x110/00000000/FF4081?text=Acc+3",
-      "https://placehold.co/190x95/00000000/FF4081?text=Acc+4",
-      "https://placehold.co/210x105/00000000/FF4081?text=Acc+5",
-      "https://placehold.co/200x100/00000000/FF4081?text=Acc+6",
-      "https://placehold.co/180x90/00000000/FF4081?text=Acc+7",
-      "https://placehold.co/220x110/00000000/FF4081?text=Acc+8",
-      "https://placehold.co/190x95/00000000/FF4081?text=Acc+9",
-      "https://placehold.co/210x105/00000000/FF4081?text=Acc+10"
+      {
+        url: "https://placehold.co/200x100/00000000/FF4081?text=Acc+1",
+        label: "Hat"
+      },
+      {
+        url: "https://placehold.co/180x90/00000000/FF4081?text=Acc+2",
+        label: "Glasses"
+      },
+      {
+        url: "https://placehold.co/220x110/00000000/FF4081?text=Acc+3",
+        label: "Bowtie"
+      },
+      {
+        url: "https://placehold.co/190x95/00000000/FF4081?text=Acc+4",
+        label: "Necklace"
+      },
+      {
+        url: "https://placehold.co/210x105/00000000/FF4081?text=Acc+5",
+        label: "Crown"
+      },
+      {
+        url: "https://placehold.co/200x100/00000000/FF4081?text=Acc+6",
+        label: "Earrings"
+      },
+      {
+        url: "https://placehold.co/180x90/00000000/FF4081?text=Acc+7",
+        label: "Bracelet"
+      },
+      {
+        url: "https://placehold.co/220x110/00000000/FF4081?text=Acc+8",
+        label: "Scarf"
+      },
+      {
+        url: "https://placehold.co/190x95/00000000/FF4081?text=Acc+9",
+        label: "Tie"
+      },
+      {
+        url: "https://placehold.co/210x105/00000000/FF4081?text=Acc+10",
+        label: "Headphones"
+      }
     ]
   }
 ];
@@ -58,6 +159,9 @@ export function LayeredImageGenerator() {
 
   // State for tracking open dropdowns
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  
+  // Function to get URL from image item
+  const getImageUrl = (item: ImageItem): string => item.url;
 
   // Initialize selected images
   useEffect(() => {
@@ -90,16 +194,17 @@ export function LayeredImageGenerator() {
     };
   }, [openDropdown]);
 
-  // Preload all images
+  // Preload all images with better error handling
   useEffect(() => {
     const preloadedImages: Record<string, HTMLImageElement[]> = {};
-    let loadPromises: Promise<void>[] = [];
+    const loadPromises: Array<Promise<void>> = [];
+    const failedImages: Array<string> = [];
 
     imageLayers.forEach(layer => {
       preloadedImages[layer.name] = [];
       
       layer.images.forEach((url, index) => {
-        const promise = new Promise<void>((resolve, reject) => {
+        const promise = new Promise<void>((resolve) => {
           const img = new Image();
           img.src = url;
           
@@ -109,8 +214,41 @@ export function LayeredImageGenerator() {
           };
           
           img.onerror = () => {
+            // Instead of rejecting, just log and resolve
+            // This way, the app will still function even if some images fail
             console.error(`Failed to load image: ${url}`);
-            reject(new Error(`Failed to load image: ${url}`));
+            failedImages.push(url);
+            
+            // Create a fallback image with a color based on the layer
+            const fallbackImg = new Image();
+            fallbackImg.width = 400;
+            fallbackImg.height = 400;
+            
+            // Create a canvas to generate a fallback image
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+            
+            if (ctx) {
+              // Use theme color for fallback background
+              const color = layer.name === "Background" ? '#fbd743' : 
+                           (layer.name === "Pose" ? '#9F9F9F' : '#ef6a43');
+              
+              ctx.fillStyle = color;
+              ctx.fillRect(0, 0, 400, 400);
+              
+              // Add label text
+              ctx.fillStyle = '#FFFFFF';
+              ctx.font = '20px Arial';
+              ctx.textAlign = 'center';
+              ctx.fillText(`${layer.name} ${index + 1}`, 200, 200);
+              
+              fallbackImg.src = canvas.toDataURL('image/png');
+              preloadedImages[layer.name][index] = fallbackImg;
+            }
+            
+            resolve();
           };
         });
         
@@ -122,12 +260,8 @@ export function LayeredImageGenerator() {
       .then(() => {
         setLoadedImages(preloadedImages);
         setIsLoading(false);
-        setHasError(false);
-      })
-      .catch(error => {
-        console.error('Error preloading images:', error);
-        setIsLoading(false);
-        setHasError(true);
+        // Only set error if all images failed
+        setHasError(failedImages.length === imageLayers.reduce((acc, layer) => acc + layer.images.length, 0));
       });
   }, []);
 
