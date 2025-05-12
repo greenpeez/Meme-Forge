@@ -214,6 +214,66 @@ export function LayeredImageGenerator() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    let initialTouchDistance = 0;
+    let activeTouchLayer: string | null = null;
+
+    const getDistance = (touch1: Touch, touch2: Touch) => {
+      const dx = touch1.clientX - touch2.clientX;
+      const dy = touch1.clientY - touch2.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        // Handle pinch/spread gesture start
+        const rect = canvas.getBoundingClientRect();
+        const touch1X = e.touches[0].clientX - rect.left;
+        const touch1Y = e.touches[0].clientY - rect.top;
+
+        // Find which layer is being touched
+        for (const layerName in resizableImages) {
+          const img = resizableImages[layerName];
+          if (
+            touch1X >= img.x && touch1X <= img.x + img.width &&
+            touch1Y >= img.y && touch1Y <= img.y + img.height
+          ) {
+            activeTouchLayer = layerName;
+            initialTouchDistance = getDistance(e.touches[0], e.touches[1]);
+            break;
+          }
+        }
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && activeTouchLayer) {
+        e.preventDefault(); // Prevent default zoom behavior
+        const currentDistance = getDistance(e.touches[0], e.touches[1]);
+        const scale = currentDistance / initialTouchDistance;
+
+        const img = resizableImages[activeTouchLayer];
+        if (img) {
+          const newWidth = Math.max(50, img.width * scale);
+          const newHeight = Math.max(50, img.height * scale);
+
+          const updatedImages = { ...resizableImages };
+          updatedImages[activeTouchLayer] = {
+            ...img,
+            width: newWidth,
+            height: newHeight
+          };
+          setResizableImages(updatedImages);
+          redrawCanvas();
+          initialTouchDistance = currentDistance;
+        }
+      }
+    };
+
+    const handleTouchEnd = () => {
+      activeTouchLayer = null;
+      initialTouchDistance = 0;
+    };
+
     const handleMouseDown = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
@@ -410,12 +470,18 @@ export function LayeredImageGenerator() {
     canvas.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
 
     // Remove event listeners on cleanup
     return () => {
       canvas.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      canvas.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
     };
   }, [resizableImages, activeResizeHandle]);
 
