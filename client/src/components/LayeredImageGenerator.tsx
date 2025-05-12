@@ -193,12 +193,12 @@ export function LayeredImageGenerator() {
           <h2 className="text-xl font-medium mb-4 text-secondary border-b border-neutral-200 pb-2">Preview</h2>
           
           <div className="flex flex-col items-center">
-            <div className="canvas-container mb-6">
+            <div className="canvas-container mb-6 border-4 border-primary/20 rounded-lg overflow-hidden">
               <canvas 
                 ref={canvasRef}
                 width="400" 
                 height="400" 
-                className={`max-w-full h-auto ${isLoading ? 'opacity-50' : 'opacity-100'}`}
+                className={`max-w-full h-auto ${isLoading ? 'opacity-50' : 'opacity-100'} bg-white`}
               />
             </div>
             
@@ -227,7 +227,7 @@ export function LayeredImageGenerator() {
             <button 
               onClick={handleDownload}
               disabled={isLoading || hasError}
-              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-3 rounded-md font-medium transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-3 rounded-md font-medium transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -279,8 +279,8 @@ export function LayeredImageGenerator() {
                                 setOpenDropdown(null);
                               }}
                             />
-                            <div className="border-2 border-transparent hover:border-primary-light rounded-md overflow-hidden transition-all p-1">
-                              <div className="aspect-square bg-neutral-200 rounded flex items-center justify-center">
+                            <div className="border-2 border-transparent hover:border-primary rounded-md overflow-hidden transition-all p-1">
+                              <div className="aspect-square bg-neutral-100 rounded flex items-center justify-center">
                                 <img 
                                   src={imageUrl} 
                                   alt={`${layer.name} option ${imageIndex + 1}`}
@@ -296,8 +296,8 @@ export function LayeredImageGenerator() {
                 </div>
                 
                 {/* Show the currently selected image for this layer */}
-                <div className="mt-2 p-2 flex justify-center border rounded-md">
-                  <div className="w-16 h-16 bg-neutral-100 rounded">
+                <div className="mt-2 p-2 flex justify-center border border-primary/20 rounded-md bg-primary/5">
+                  <div className="w-16 h-16 bg-white rounded shadow-sm">
                     {loadedImages[layer.name] && selectedImages[layer.name] !== undefined && (
                       <img 
                         src={layer.images[selectedImages[layer.name]]}

@@ -83,7 +83,11 @@
 }
 
 .canvas-container {
-  @apply border-4 border-neutral-200 rounded-lg overflow-hidden shadow-md;
+  @apply shadow-md;
   max-width: 400px;
   margin: 0 auto;
+}
+
+.layered-image-generator {
+  @apply bg-gradient-to-b from-primary/10 to-white;
 }
