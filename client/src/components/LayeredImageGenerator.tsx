@@ -304,24 +304,34 @@ export function LayeredImageGenerator() {
     // Check if there are any layers to display
     if (Object.keys(layerObjects).length === 0) {
       // Draw empty state message
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 1)'; // Black text
       ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('Select images from the panels below', canvas.width / 2, canvas.height / 2 - 30);
+      ctx.fillText('Add an image', canvas.width / 2, canvas.height / 2 - 30);
       
-      // Add arrow icon
+      // Add plus icon
       ctx.beginPath();
-      const arrowSize = 30;
-      const arrowX = canvas.width / 2;
-      const arrowY = canvas.height / 2 + 20;
+      const plusSize = 30;
+      const plusThickness = 6;
+      const plusX = canvas.width / 2;
+      const plusY = canvas.height / 2 + 20;
       
-      // Draw arrow shape
-      ctx.moveTo(arrowX, arrowY + arrowSize);
-      ctx.lineTo(arrowX - arrowSize / 2, arrowY);
-      ctx.lineTo(arrowX + arrowSize / 2, arrowY);
-      ctx.closePath();
-      ctx.fill();
+      // Draw plus shape (horizontal line)
+      ctx.fillRect(
+        plusX - plusSize/2, 
+        plusY - plusThickness/2, 
+        plusSize, 
+        plusThickness
+      );
+      
+      // Draw plus shape (vertical line)
+      ctx.fillRect(
+        plusX - plusThickness/2, 
+        plusY - plusSize/2, 
+        plusThickness, 
+        plusSize
+      );
       
       return;
     }
