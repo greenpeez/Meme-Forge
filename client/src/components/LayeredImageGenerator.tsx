@@ -254,19 +254,35 @@ export function LayeredImageGenerator() {
       } else {
         // Auto-fit the image to the canvas while maintaining aspect ratio
         let width, height;
-        const maxDimension = Math.min(canvas.width, canvas.height) * 0.9; // Use 90% of canvas to leave some margin
+        
+        // Use full canvas dimensions (with just a small margin)
+        const maxWidth = canvas.width * 0.98;  // 98% of canvas width
+        const maxHeight = canvas.height * 0.98; // 98% of canvas height
         
         const aspectRatio = cachedImage.width / cachedImage.height;
         
-        // Calculate dimensions to fit in canvas (maintaining aspect ratio)
+        // Calculate dimensions to maximize usage of canvas space
+        // while preserving aspect ratio
         if (aspectRatio >= 1) {
-          // Landscape or square image
-          width = Math.min(maxDimension, cachedImage.width);
+          // Landscape or square image - constrain by width first
+          width = maxWidth;
           height = width / aspectRatio;
+          
+          // If height exceeds max height, recalculate based on height
+          if (height > maxHeight) {
+            height = maxHeight;
+            width = height * aspectRatio;
+          }
         } else {
-          // Portrait image
-          height = Math.min(maxDimension, cachedImage.height);
+          // Portrait image - constrain by height first
+          height = maxHeight;
           width = height * aspectRatio;
+          
+          // If width exceeds max width, recalculate based on width
+          if (width > maxWidth) {
+            width = maxWidth;
+            height = width / aspectRatio;
+          }
         }
         
         console.log("Auto-fitting image with dimensions:", cachedImage.width, "x", cachedImage.height, "to", Math.round(width), "x", Math.round(height));
@@ -310,8 +326,9 @@ export function LayeredImageGenerator() {
       ctx.textBaseline = 'middle';
       ctx.fillText('Add an image', canvas.width / 2, canvas.height / 2 - 30);
       
-      // Add plus icon
+      // Add plus icon (in the same orange theme color)
       ctx.beginPath();
+      ctx.fillStyle = '#ef6a43'; // Keep the plus sign orange as well
       const plusSize = 30;
       const plusThickness = 6;
       const plusX = canvas.width / 2;
