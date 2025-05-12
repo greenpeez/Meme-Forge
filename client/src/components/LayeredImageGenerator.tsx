@@ -183,14 +183,14 @@ export function LayeredImageGenerator() {
   return (
     <div className="layered-image-generator mx-auto p-4 max-w-7xl">
       <header className="mb-6 text-center">
-        <h1 className="text-2xl font-bold text-primary mb-2">Bani Meme Generator</h1>
-        <p className="text-neutral-600">Mix-n-match layers to build your custom Bani PFP!</p>
+        <h1 className="text-3xl font-bold text-secondary mb-2">Bani Meme Generator</h1>
+        <p className="text-neutral-700 text-lg">Mix-n-match layers to build your custom Bani PFP!</p>
       </header>
 
       <div className="flex flex-col space-y-6">
         {/* Canvas Display Panel - Moved to top */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-medium mb-4 text-primary-dark border-b border-neutral-200 pb-2">Preview</h2>
+          <h2 className="text-xl font-medium mb-4 text-secondary border-b border-neutral-200 pb-2">Preview</h2>
           
           <div className="flex flex-col items-center">
             <div className="canvas-container mb-6">
@@ -227,7 +227,7 @@ export function LayeredImageGenerator() {
             <button 
               onClick={handleDownload}
               disabled={isLoading || hasError}
-              className="bg-secondary hover:bg-secondary-dark text-white px-6 py-3 rounded-md font-medium transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-3 rounded-md font-medium transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -239,7 +239,7 @@ export function LayeredImageGenerator() {
         
         {/* Layer Selection Panel */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-medium mb-4 text-primary-dark border-b border-neutral-200 pb-2">Layer Selection</h2>
+          <h2 className="text-xl font-medium mb-4 text-secondary border-b border-neutral-200 pb-2">Layer Selection</h2>
           
           {/* Layer Selection Controls - Now using popover/dropdown UI */}
           <div className="grid gap-4 md:grid-cols-3">
@@ -253,7 +253,7 @@ export function LayeredImageGenerator() {
                       // Toggle dropdown state
                       setOpenDropdown(prev => prev === layer.name ? null : layer.name);
                     }}
-                    className="flex justify-between items-center w-full px-4 py-3 bg-primary text-white rounded-md shadow hover:bg-primary/90 transition-colors"
+                    className="flex justify-between items-center w-full px-4 py-3 bg-primary text-primary-foreground rounded-md shadow hover:bg-primary/90 transition-colors"
                   >
                     <span className="font-medium">{layer.name}</span>
                     <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
