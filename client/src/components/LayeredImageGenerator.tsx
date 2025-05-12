@@ -11,50 +11,67 @@ type ImageLayer = {
   images: ImageItem[];
 };
 
+// Define resizable image data type
+type ResizableImage = {
+  img: HTMLImageElement;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  isDragging: boolean;
+  isResizing: boolean;
+  dragOffsetX: number;
+  dragOffsetY: number;
+  resizeStartX: number;
+  resizeStartY: number;
+  originalWidth: number;
+  originalHeight: number;
+};
+
 // Define the image layers with more descriptive names
 const imageLayers: ImageLayer[] = [
   {
     name: "Background",
     images: [
       {
-        url: "/images/backgrounds/sunset.png",
-        label: "Sunset Beach"
+        url: "/images/backgrounds/sunset.jpg",
+        label: "Sunset Ocean"
       },
       {
-        url: "/images/backgrounds/trench.png",
+        url: "/images/backgrounds/futuristic-city.jpg",
+        label: "Future Earth"
+      },
+      {
+        url: "/images/backgrounds/tokyo-night.jpg",
+        label: "Tokyo Nights"
+      },
+      {
+        url: "/images/backgrounds/race-track.jpg",
+        label: "Racing Circuit"
+      },
+      {
+        url: "/images/backgrounds/beach.jpg",
+        label: "Tropical Beach"
+      },
+      {
+        url: "/images/backgrounds/flower-field.jpg",
+        label: "Flower Meadow"
+      },
+      {
+        url: "/images/backgrounds/forest.jpg",
+        label: "Forest Path"
+      },
+      {
+        url: "/images/backgrounds/mountain.jpg",
+        label: "Mountain Peak"
+      },
+      {
+        url: "/images/backgrounds/trench.jpg",
         label: "Vintage War"
       },
       {
-        url: "https://images.unsplash.com/photo-1520454974749-611b7248ffdb?q=80&w=400&h=400&auto=format&fit=crop",
-        label: "Coastal Paradise"
-      },
-      {
-        url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=400&h=400&auto=format&fit=crop",
-        label: "Mountain Lake"
-      },
-      {
-        url: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=400&h=400&auto=format&fit=crop",
-        label: "Spring Hills"
-      },
-      {
-        url: "https://images.unsplash.com/photo-1528164344705-47542687000d?q=80&w=400&h=400&auto=format&fit=crop",
-        label: "City Skyline"
-      },
-      {
-        url: "https://images.unsplash.com/photo-1579546929662-711aa81148cf?q=80&w=400&h=400&auto=format&fit=crop",
-        label: "Neon Glow"
-      },
-      {
-        url: "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=400&h=400&auto=format&fit=crop",
-        label: "Colorful Gradient"
-      },
-      {
-        url: "https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569_1280.jpg",
-        label: "Night Sky"
-      },
-      {
-        url: "https://cdn.pixabay.com/photo/2016/11/23/13/48/beach-1852945_1280.jpg",
-        label: "Tropical Beach"
+        url: "/images/backgrounds/soldiers.jpg",
+        label: "Trench Soldiers"
       }
     ]
   },
@@ -156,6 +173,9 @@ export function LayeredImageGenerator() {
   const [loadedImages, setLoadedImages] = useState<Record<string, HTMLImageElement[]>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
+  const [resizableImages, setResizableImages] = useState<Record<string, ResizableImage>>({});
+  const [activeResizeHandle, setActiveResizeHandle] = useState<string | null>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 600, height: 600 });
 
   // State for tracking open dropdowns
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -190,6 +210,259 @@ export function LayeredImageGenerator() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [openDropdown]);
+
+  // Set up canvas event listeners for drag and resize
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      
+      // First check if we're on a resize handle
+      let foundResizeHandle = false;
+      
+      for (const layerName in resizableImages) {
+        const img = resizableImages[layerName];
+        
+        // Check each corner for resize handles (using a small area around each corner)
+        const handleSize = 15;
+        
+        // Bottom-right corner (primary resize handle)
+        if (
+          mouseX >= img.x + img.width - handleSize && 
+          mouseX <= img.x + img.width + handleSize && 
+          mouseY >= img.y + img.height - handleSize && 
+          mouseY <= img.y + img.height + handleSize
+        ) {
+          setActiveResizeHandle(layerName);
+          const updatedImages = { ...resizableImages };
+          updatedImages[layerName] = {
+            ...img,
+            isResizing: true,
+            resizeStartX: mouseX,
+            resizeStartY: mouseY
+          };
+          setResizableImages(updatedImages);
+          foundResizeHandle = true;
+          break;
+        }
+      }
+      
+      // If not resizing, check if we're dragging an image
+      if (!foundResizeHandle) {
+        // Check if we're clicking on an image to drag
+        for (const layerName in resizableImages) {
+          const img = resizableImages[layerName];
+          
+          if (
+            mouseX >= img.x && 
+            mouseX <= img.x + img.width && 
+            mouseY >= img.y && 
+            mouseY <= img.y + img.height
+          ) {
+            const updatedImages = { ...resizableImages };
+            updatedImages[layerName] = {
+              ...img,
+              isDragging: true,
+              dragOffsetX: mouseX - img.x,
+              dragOffsetY: mouseY - img.y
+            };
+            setResizableImages(updatedImages);
+            break;
+          }
+        }
+      }
+    };
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      
+      // Update cursor based on position
+      let overResizeHandle = false;
+      
+      for (const layerName in resizableImages) {
+        const img = resizableImages[layerName];
+        const handleSize = 15;
+        
+        if (
+          mouseX >= img.x + img.width - handleSize && 
+          mouseX <= img.x + img.width + handleSize && 
+          mouseY >= img.y + img.height - handleSize && 
+          mouseY <= img.y + img.height + handleSize
+        ) {
+          canvas.style.cursor = 'nwse-resize';
+          overResizeHandle = true;
+          break;
+        }
+      }
+      
+      if (!overResizeHandle) {
+        let overDraggable = false;
+        
+        for (const layerName in resizableImages) {
+          const img = resizableImages[layerName];
+          
+          if (
+            mouseX >= img.x && 
+            mouseX <= img.x + img.width && 
+            mouseY >= img.y && 
+            mouseY <= img.y + img.height
+          ) {
+            canvas.style.cursor = 'move';
+            overDraggable = true;
+            break;
+          }
+        }
+        
+        if (!overDraggable) {
+          canvas.style.cursor = 'default';
+        }
+      }
+      
+      // Handle resizing
+      if (activeResizeHandle) {
+        const img = resizableImages[activeResizeHandle];
+        if (img && img.isResizing) {
+          // Calculate new width and height based on mouse movement
+          let newWidth = Math.max(50, img.width + (mouseX - img.resizeStartX));
+          let newHeight = Math.max(50, img.height + (mouseY - img.resizeStartY));
+          
+          // Maintain aspect ratio if shift key is pressed
+          if (e.shiftKey) {
+            const aspectRatio = img.originalWidth / img.originalHeight;
+            if (newWidth / newHeight > aspectRatio) {
+              newWidth = newHeight * aspectRatio;
+            } else {
+              newHeight = newWidth / aspectRatio;
+            }
+          }
+          
+          const updatedImages = { ...resizableImages };
+          updatedImages[activeResizeHandle] = {
+            ...img,
+            width: newWidth,
+            height: newHeight,
+            resizeStartX: mouseX,
+            resizeStartY: mouseY
+          };
+          setResizableImages(updatedImages);
+          redrawCanvas();
+        }
+      } else {
+        // Handle dragging
+        let isDragging = false;
+        
+        for (const layerName in resizableImages) {
+          const img = resizableImages[layerName];
+          
+          if (img.isDragging) {
+            isDragging = true;
+            
+            // Calculate new position based on mouse movement and drag offset
+            const newX = mouseX - img.dragOffsetX;
+            const newY = mouseY - img.dragOffsetY;
+            
+            const updatedImages = { ...resizableImages };
+            updatedImages[layerName] = {
+              ...img,
+              x: newX,
+              y: newY
+            };
+            setResizableImages(updatedImages);
+            redrawCanvas();
+            break;
+          }
+        }
+      }
+    };
+    
+    const handleMouseUp = () => {
+      // Reset dragging and resizing states
+      let needsUpdate = false;
+      const updatedImages = { ...resizableImages };
+      
+      for (const layerName in resizableImages) {
+        const img = resizableImages[layerName];
+        
+        if (img.isDragging || img.isResizing) {
+          needsUpdate = true;
+          updatedImages[layerName] = {
+            ...img,
+            isDragging: false,
+            isResizing: false
+          };
+        }
+      }
+      
+      if (needsUpdate) {
+        setResizableImages(updatedImages);
+      }
+      
+      if (activeResizeHandle) {
+        setActiveResizeHandle(null);
+      }
+    };
+    
+    // Add event listeners
+    canvas.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    
+    // Remove event listeners on cleanup
+    return () => {
+      canvas.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [resizableImages, activeResizeHandle]);
+
+  // Function to redraw the canvas
+  const redrawCanvas = () => {
+    if (!canvasRef.current) return;
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) return;
+    
+    // Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw each layer in order
+    imageLayers.forEach(layer => {
+      const resizableImage = resizableImages[layer.name];
+      if (resizableImage) {
+        ctx.drawImage(
+          resizableImage.img,
+          resizableImage.x,
+          resizableImage.y,
+          resizableImage.width,
+          resizableImage.height
+        );
+        
+        // Draw resize handle at bottom-right corner
+        const handleSize = 8;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.strokeStyle = '#fbd743';
+        ctx.lineWidth = 2;
+        
+        ctx.beginPath();
+        ctx.rect(
+          resizableImage.x + resizableImage.width - handleSize,
+          resizableImage.y + resizableImage.height - handleSize,
+          handleSize,
+          handleSize
+        );
+        ctx.fill();
+        ctx.stroke();
+      }
+    });
+  };
 
   // Preload all images with better error handling
   useEffect(() => {
@@ -265,33 +538,50 @@ export function LayeredImageGenerator() {
       });
   }, []);
 
-  // Draw canvas when selected images or loaded images change
+  // Update resizableImages when selectedImages or loadedImages change
   useEffect(() => {
     if (isLoading || hasError || !canvasRef.current) return;
     
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const newResizableImages: Record<string, ResizableImage> = {};
     
-    if (!ctx) return;
-    
-    // Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw each selected layer image in order
+    // Initialize resizable images
     imageLayers.forEach(layer => {
       const selectedIndex = selectedImages[layer.name];
       const image = loadedImages[layer.name]?.[selectedIndex];
       
       if (image) {
-        // Calculate position to center the image
-        const x = (canvas.width - image.width) / 2;
-        const y = (canvas.height - image.height) / 2;
+        // Calculate initial position to center the image
+        const initialWidth = image.width;
+        const initialHeight = image.height;
+        const x = (canvas.width - initialWidth) / 2;
+        const y = (canvas.height - initialHeight) / 2;
         
-        // Draw the image centered on canvas
-        ctx.drawImage(image, x, y);
+        newResizableImages[layer.name] = {
+          img: image,
+          x,
+          y,
+          width: initialWidth,
+          height: initialHeight,
+          isDragging: false,
+          isResizing: false,
+          dragOffsetX: 0,
+          dragOffsetY: 0,
+          resizeStartX: 0,
+          resizeStartY: 0,
+          originalWidth: initialWidth,
+          originalHeight: initialHeight
+        };
       }
     });
+    
+    setResizableImages(newResizableImages);
   }, [selectedImages, loadedImages, isLoading, hasError]);
+
+  // Draw canvas when resizableImages changes
+  useEffect(() => {
+    redrawCanvas();
+  }, [resizableImages]);
 
   // Handle layer selection change
   const handleSelectionChange = (layerName: string, imageIndex: number) => {
@@ -305,12 +595,25 @@ export function LayeredImageGenerator() {
   const handleDownload = () => {
     if (isLoading || hasError || !canvasRef.current) return;
     
+    // Create a new canvas with the same dimensions for the download
+    // This ensures we download the image as displayed (with all layers)
     const canvas = canvasRef.current;
-    const dataUrl = canvas.toDataURL('image/png');
+    const downloadCanvas = document.createElement('canvas');
+    downloadCanvas.width = canvas.width;
+    downloadCanvas.height = canvas.height;
+    
+    const ctx = downloadCanvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Copy the current canvas content (with all layers and their positions/sizes)
+    ctx.drawImage(canvas, 0, 0);
+    
+    // Generate and download the image
+    const dataUrl = downloadCanvas.toDataURL('image/png');
     
     const link = document.createElement('a');
     link.href = dataUrl;
-    link.download = 'layered-image.png';
+    link.download = 'bani-meme.png';
     link.click();
   };
 
@@ -327,11 +630,21 @@ export function LayeredImageGenerator() {
           <h2 className="text-xl font-medium mb-4 text-secondary border-b border-neutral-200 pb-2">Preview</h2>
           
           <div className="flex flex-col items-center">
+            {/* Instructions for resizing */}
+            <div className="mb-4 text-sm bg-primary/10 p-3 rounded-lg max-w-lg text-center">
+              <p className="font-medium text-primary mb-1">Image Editing Tips:</p>
+              <ul className="text-neutral-700 list-disc list-inside space-y-1 text-left">
+                <li><span className="font-medium">Drag images</span> by clicking and moving them</li>
+                <li><span className="font-medium">Resize images</span> by dragging the corner handle</li>
+                <li>Hold <span className="font-medium">Shift</span> while resizing to maintain aspect ratio</li>
+              </ul>
+            </div>
+            
             <div className="canvas-container mb-6 border-4 border-primary/20 rounded-lg overflow-hidden">
               <canvas 
                 ref={canvasRef}
-                width="400" 
-                height="400" 
+                width="600" 
+                height="600" 
                 className={`max-w-full h-auto ${isLoading ? 'opacity-50' : 'opacity-100'} bg-white`}
               />
             </div>
