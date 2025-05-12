@@ -34,6 +34,8 @@ type LayerObject = {
   activeCorner: Corner;
   dragStartX: number;
   dragStartY: number;
+  cornerOffsetX?: number; // Offset from cursor to actual corner
+  cornerOffsetY?: number; // Offset from cursor to actual corner
 };
 
 // Define the image layers with more descriptive names
@@ -512,7 +514,37 @@ export function LayeredImageGenerator() {
           setActiveLayer(layerName);
           setIsResizing(true);
           
-          // Update layer state
+          // Store the exact distance from cursor to the actual corner
+          let cornerX = 0;
+          let cornerY = 0;
+          
+          // Calculate corner position based on which corner was clicked
+          switch (corner) {
+            case Corner.TopLeft:
+              cornerX = layer.x;
+              cornerY = layer.y;
+              break;
+            case Corner.TopRight:
+              cornerX = layer.x + layer.width;
+              cornerY = layer.y;
+              break;
+            case Corner.BottomLeft:
+              cornerX = layer.x;
+              cornerY = layer.y + layer.height;
+              break;
+            case Corner.BottomRight:
+              cornerX = layer.x + layer.width;
+              cornerY = layer.y + layer.height;
+              break;
+          }
+          
+          // Calculate offset from cursor to actual corner for precise tracking
+          const cornerOffsetX = x - cornerX;
+          const cornerOffsetY = y - cornerY;
+          
+          console.log("Starting resize with corner offset:", cornerOffsetX, cornerOffsetY);
+          
+          // Update layer state with offset info for precise tracking
           setLayerObjects(prev => ({
             ...prev,
             [layerName]: {
@@ -520,7 +552,9 @@ export function LayeredImageGenerator() {
               isResizing: true,
               activeCorner: corner,
               dragStartX: x,
-              dragStartY: y
+              dragStartY: y,
+              cornerOffsetX: cornerOffsetX,
+              cornerOffsetY: cornerOffsetY
             }
           }));
           
@@ -593,10 +627,13 @@ export function LayeredImageGenerator() {
       if (isResizing && layerObjects[activeLayer]) {
         const layer = layerObjects[activeLayer];
         
-        // Get the delta movement - apply a scaling factor to make resizing more responsive
-        const scaleFactor = 1.5; // Makes resizing more dramatic with less mouse movement
-        const deltaX = (x - layer.dragStartX) * scaleFactor;
-        const deltaY = (y - layer.dragStartY) * scaleFactor;
+        // Calculate the actual corner position based on the mouse position and offset
+        const cornerOffsetX = layer.cornerOffsetX || 0;
+        const cornerOffsetY = layer.cornerOffsetY || 0;
+        
+        // Adjusted cursor position to get the exact corner position
+        const cornerX = x - cornerOffsetX;
+        const cornerY = y - cornerOffsetY;
         
         // Variables to store new position and dimensions
         let newX = layer.x;
@@ -606,41 +643,69 @@ export function LayeredImageGenerator() {
         
         const aspectRatio = layer.originalWidth / layer.originalHeight;
         
-        console.log("Resizing from corner:", layer.activeCorner, "with deltas:", deltaX, deltaY);
+        console.log("Precise resize from:", layer.activeCorner, 
+          "cursor at:", x, y,
+          "corner at:", cornerX, cornerY);
         
-        // Handle different corners
+        // Handle different corners with precise cursor tracking
         switch (layer.activeCorner) {
           case Corner.TopLeft:
-            // Update position and size inversely - simplify logic for more consistent behavior
-            // Use the larger of deltaX or deltaY for more responsive resizing
-            const topLeftDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX < 0 ? -1 : 1);
-            newWidth = Math.max(50, layer.width - topLeftDelta);
+            // For top-left, we directly use the adjusted corner position
+            newX = cornerX;
+            newWidth = layer.x + layer.width - cornerX;
+            // Maintain aspect ratio
             newHeight = newWidth / aspectRatio;
-            newX = layer.x + (layer.width - newWidth);
-            newY = layer.y + (layer.height - newHeight);
+            newY = layer.y + layer.height - newHeight;
+            
+            // Ensure minimum size
+            if (newWidth < 50) {
+              newWidth = 50;
+              newHeight = newWidth / aspectRatio;
+              newX = layer.x + layer.width - newWidth;
+              newY = layer.y + layer.height - newHeight;
+            }
             break;
             
           case Corner.TopRight:
-            // Update y-position and size - simplify for more responsive behavior
-            const topRightDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX > 0 ? 1 : -1);
-            newWidth = Math.max(50, layer.width + topRightDelta);
+            // For top-right, we set width based on distance from left edge to cursor
+            newWidth = cornerX - layer.x;
+            // Maintain aspect ratio
             newHeight = newWidth / aspectRatio;
-            newY = layer.y + (layer.height - newHeight);
+            newY = layer.y + layer.height - newHeight;
+            
+            // Ensure minimum size
+            if (newWidth < 50) {
+              newWidth = 50;
+              newHeight = newWidth / aspectRatio;
+              newY = layer.y + layer.height - newHeight;
+            }
             break;
             
           case Corner.BottomLeft:
-            // Update x-position and size - simplify for more responsive behavior
-            const bottomLeftDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX < 0 ? -1 : 1);
-            newWidth = Math.max(50, layer.width - bottomLeftDelta);
+            // For bottom-left, width is based on distance from cursor to right edge
+            newX = cornerX;
+            newWidth = layer.x + layer.width - cornerX;
+            // Maintain aspect ratio
             newHeight = newWidth / aspectRatio;
-            newX = layer.x + (layer.width - newWidth);
+            
+            // Ensure minimum size
+            if (newWidth < 50) {
+              newWidth = 50;
+              newHeight = newWidth / aspectRatio;
+              newX = layer.x + layer.width - newWidth;
+            }
             break;
             
           case Corner.BottomRight:
-            // Simple resize from bottom-right - make this most responsive
-            const bottomRightDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX > 0 ? 1 : -1);
-            newWidth = Math.max(50, layer.width + bottomRightDelta);
-            newHeight = newWidth / aspectRatio;
+            // For bottom-right, we directly set width and height based on corner position
+            newWidth = cornerX - layer.x;
+            newHeight = newWidth / aspectRatio; // Maintain aspect ratio
+            
+            // Ensure minimum size
+            if (newWidth < 50) {
+              newWidth = 50;
+              newHeight = newWidth / aspectRatio;
+            }
             break;
             
           default:
@@ -736,6 +801,36 @@ export function LayeredImageGenerator() {
           setActiveLayer(layerName);
           setIsResizing(true);
           
+          // Store the exact distance from touch to the actual corner for mobile
+          let cornerX = 0;
+          let cornerY = 0;
+          
+          // Calculate corner position based on which corner was clicked
+          switch (corner) {
+            case Corner.TopLeft:
+              cornerX = layer.x;
+              cornerY = layer.y;
+              break;
+            case Corner.TopRight:
+              cornerX = layer.x + layer.width;
+              cornerY = layer.y;
+              break;
+            case Corner.BottomLeft:
+              cornerX = layer.x;
+              cornerY = layer.y + layer.height;
+              break;
+            case Corner.BottomRight:
+              cornerX = layer.x + layer.width;
+              cornerY = layer.y + layer.height;
+              break;
+          }
+          
+          // Calculate offset from touch to actual corner for precise tracking
+          const cornerOffsetX = x - cornerX;
+          const cornerOffsetY = y - cornerY;
+          
+          console.log("Starting touch resize with corner offset:", cornerOffsetX, cornerOffsetY);
+          
           setLayerObjects(prev => ({
             ...prev,
             [layerName]: {
@@ -743,7 +838,9 @@ export function LayeredImageGenerator() {
               isResizing: true,
               activeCorner: corner,
               dragStartX: x,
-              dragStartY: y
+              dragStartY: y,
+              cornerOffsetX: cornerOffsetX,
+              cornerOffsetY: cornerOffsetY
             }
           }));
           
@@ -789,10 +886,13 @@ export function LayeredImageGenerator() {
       if (!layer) return;
       
       if (isResizing) {
-        // Apply a higher scaling factor for touch - makes resizing even more responsive on mobile
-        const scaleFactor = 2.0; 
-        const deltaX = (x - layer.dragStartX) * scaleFactor;
-        const deltaY = (y - layer.dragStartY) * scaleFactor;
+        // Calculate the actual corner position based on the touch position and offset
+        const cornerOffsetX = layer.cornerOffsetX || 0;
+        const cornerOffsetY = layer.cornerOffsetY || 0;
+        
+        // Adjusted touch position to get the exact corner position
+        const cornerX = x - cornerOffsetX;
+        const cornerY = y - cornerOffsetY;
         
         // Variables to store new position and dimensions
         let newX = layer.x;
@@ -802,38 +902,69 @@ export function LayeredImageGenerator() {
         
         const aspectRatio = layer.originalWidth / layer.originalHeight;
         
-        console.log("Touch resizing from corner:", layer.activeCorner);
+        console.log("Touch precise resize from:", layer.activeCorner, 
+          "touch at:", x, y,
+          "corner at:", cornerX, cornerY);
         
-        // Handle different corners with simplified logic for better response
+        // Use the same precise resize logic as mouse events
         switch (layer.activeCorner) {
           case Corner.TopLeft:
-            // Use the maximum delta for more responsive touch resize
-            const topLeftDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX < 0 ? -1 : 1);
-            newWidth = Math.max(50, layer.width - topLeftDelta);
+            // For top-left, we directly use the adjusted corner position
+            newX = cornerX;
+            newWidth = layer.x + layer.width - cornerX;
+            // Maintain aspect ratio
             newHeight = newWidth / aspectRatio;
-            newX = layer.x + (layer.width - newWidth);
-            newY = layer.y + (layer.height - newHeight);
+            newY = layer.y + layer.height - newHeight;
+            
+            // Ensure minimum size
+            if (newWidth < 50) {
+              newWidth = 50;
+              newHeight = newWidth / aspectRatio;
+              newX = layer.x + layer.width - newWidth;
+              newY = layer.y + layer.height - newHeight;
+            }
             break;
             
           case Corner.TopRight:
-            const topRightDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX > 0 ? 1 : -1);
-            newWidth = Math.max(50, layer.width + topRightDelta);
+            // For top-right, we set width based on distance from left edge to cursor
+            newWidth = cornerX - layer.x;
+            // Maintain aspect ratio
             newHeight = newWidth / aspectRatio;
-            newY = layer.y + (layer.height - newHeight);
+            newY = layer.y + layer.height - newHeight;
+            
+            // Ensure minimum size
+            if (newWidth < 50) {
+              newWidth = 50;
+              newHeight = newWidth / aspectRatio;
+              newY = layer.y + layer.height - newHeight;
+            }
             break;
             
           case Corner.BottomLeft:
-            const bottomLeftDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX < 0 ? -1 : 1);
-            newWidth = Math.max(50, layer.width - bottomLeftDelta);
+            // For bottom-left, width is based on distance from cursor to right edge
+            newX = cornerX;
+            newWidth = layer.x + layer.width - cornerX;
+            // Maintain aspect ratio
             newHeight = newWidth / aspectRatio;
-            newX = layer.x + (layer.width - newWidth);
+            
+            // Ensure minimum size
+            if (newWidth < 50) {
+              newWidth = 50;
+              newHeight = newWidth / aspectRatio;
+              newX = layer.x + layer.width - newWidth;
+            }
             break;
             
           case Corner.BottomRight:
-            // Simple resize from bottom-right - very common on mobile
-            const bottomRightDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX > 0 ? 1 : -1);
-            newWidth = Math.max(50, layer.width + bottomRightDelta);
-            newHeight = newWidth / aspectRatio;
+            // For bottom-right, we directly set width and height based on corner position
+            newWidth = cornerX - layer.x;
+            newHeight = newWidth / aspectRatio; // Maintain aspect ratio
+            
+            // Ensure minimum size
+            if (newWidth < 50) {
+              newWidth = 50;
+              newHeight = newWidth / aspectRatio;
+            }
             break;
             
           default:
