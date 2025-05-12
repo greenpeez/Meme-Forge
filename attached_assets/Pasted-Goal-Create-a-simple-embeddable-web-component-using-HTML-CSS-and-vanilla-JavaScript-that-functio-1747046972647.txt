@@ -1,0 +1,56 @@
+Goal: Create a simple, embeddable web component using HTML, CSS, and vanilla JavaScript that functions as a layered image generator (like a simple meme or avatar builder). This component will allow users to select images from predefined categories (layers) and composite them into a single image displayed on the page.
+
+Core Functionality:
+
+Layered Image Composition:
+
+Define multiple image categories/layers (e.g., "Background", "Pose", "Accessory").
+Each category will contain a list of predefined image URLs (use 10 unique placeholder images per category for this example, e.g., placeholder-bg-1.png, placeholder-pose-1.png, etc., but design the code so the number and URLs are easily changeable).
+The component must layer the selected images in a specific, fixed order (e.g., Background at the bottom, then Pose, then Accessory on top).
+Assume images in layers above the "Background" have transparent backgrounds to allow proper layering. Assume all images intended for the same layer slot have consistent dimensions suitable for overlaying.
+User Selection Interface:
+
+For each category, provide a user interface element (e.g., a dropdown <select> menu, a set of radio buttons, or clickable thumbnail images) allowing the user to select one image from that category.
+When a user makes a selection in any category, the displayed composite image should update immediately in the display area to reflect the new combination.
+Image Display Area:
+
+Use an HTML <canvas> element to draw and display the final composite image.
+The canvas should render the selected image from the "Background" layer first, then draw the selected "Pose" image on top of it, then the selected "Accessory" image on top of that, and so on for any additional layers.
+Technical Requirements:
+
+Technology: Use HTML, CSS, and vanilla JavaScript (ES6+) only. Do not use any external frameworks or libraries (like React, Vue, jQuery, etc.).
+Embeddable: The code (HTML structure, CSS rules, JS logic) should be self-contained and easily embeddable within a standard static HTML page. Avoid polluting the global scope excessively (e.g., wrap JS in an IIFE or a class).
+Data Structure: Define a clear JavaScript data structure (e.g., an array of objects) to hold the categories and their corresponding image URLs. Make this structure easy to modify to add/remove layers or images. Example:
+JavaScript
+
+const imageLayers = [
+    {
+        name: "Background",
+        images: [/* URL for bg 1 */, /* URL for bg 2 */, /* ... */] // 10 images
+    },
+    {
+        name: "Pose",
+        images: [/* URL for pose 1 */, /* URL for pose 2 */, /* ... */] // 10 images
+    },
+    {
+        name: "Accessory",
+        images: [/* URL for acc 1 */, /* URL for acc 2 */, /* ... */] // 10 images
+    }
+    // Add more layers here if needed
+];
+Canvas Rendering: Implement the drawing logic using the Canvas 2D API (context.drawImage()). Ensure images are fully loaded before attempting to draw them to the canvas to prevent errors (e.g., use image.onload). Handle image loading asynchronously.
+Styling: Provide basic CSS for layout and appearance. Style the selection controls and the canvas display area to be clear, visually organized, and user-friendly.
+Optional Enhancements (Consider adding if straightforward):
+
+Default Selection: Display a default combination of images (e.g., the first image from each layer) when the component first loads.
+Download Button: Add a button ("Download Image") that allows the user to download the current state of the canvas as a PNG image file (using canvas.toDataURL() and creating a temporary link).
+Image Preloading: Implement a strategy to preload the images to make the selection process feel more responsive.
+Basic Error Handling: Add simple handling for cases where an image URL might fail to load.
+Deliverables:
+
+A single HTML file containing:
+The necessary HTML structure (container divs, selection elements, the <canvas>).
+Embedded <style> tags for the CSS.
+Embedded <script> tags for the JavaScript logic.
+Clear comments explaining the HTML structure, CSS rules, and JavaScript functions/logic.
+Use placeholder image URLs (e.g., using a service like https://placehold.co/ or just descriptive names like images/background/bg_01.png) if actual image assets are not available. Ensure the placeholder URLs reflect appropriate dimensions if possible (e.g., https://placehold.co/400x400/).

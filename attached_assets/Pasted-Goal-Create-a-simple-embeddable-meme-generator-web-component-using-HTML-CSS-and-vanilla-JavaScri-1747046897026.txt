@@ -1,0 +1,59 @@
+Goal: Create a simple, embeddable meme generator web component using HTML, CSS, and vanilla JavaScript. This component will allow users to select images from predefined categories (layers) and composite them into a single image displayed on the page.
+
+Core Functionality:
+
+Layered Image Composition:
+
+Define multiple image categories (e.g., "Background", "Pose", "Accessory").
+Each category will contain a list of predefined image URLs (assume 10 unique images per category for this example, but make it easily extensible).
+The component must layer the selected images in a specific order (e.g., Background at the bottom, then Pose, then Accessory on top).
+All images within a layer should ideally have consistent dimensions or be designed to overlay appropriately. Assume transparent backgrounds for all layers except "Background".
+User Selection Interface:
+
+For each category, provide a user interface element (e.g., a dropdown menu, a set of radio buttons, or clickable thumbnail images) allowing the user to select one image from that category.
+When a user makes a selection in any category, the displayed composite image should update immediately to reflect the new combination.
+Image Display:
+
+Use the HTML <canvas> element to draw and display the composite image.
+The canvas should render the selected image from the "Background" layer first, then draw the selected "Pose" image on top of it, then the selected "Accessory" image on top of that, and so on for any additional layers.
+Technical Requirements:
+
+Technology: Use HTML, CSS, and vanilla JavaScript (ES6+). No external frameworks or libraries (like React, Vue, jQuery) are required unless specifically needed for a core function that's overly complex in vanilla JS (which shouldn't be the case here).
+Embeddable: The code should be structured so it can be easily dropped into an existing static HTML page. This might involve wrapping it in a function, class, or using Web Components standards if feasible for simplicity.
+Data Structure: Define a clear JavaScript data structure (e.g., an array of objects or a map) to hold the categories and their corresponding image URLs. Example:
+JavaScript
+
+const imageLayers = [
+    {
+        name: "Background",
+        images: ["bg1.png", "bg2.png", /* ... */ "bg10.png"]
+    },
+    {
+        name: "Pose",
+        images: ["pose1.png", "pose2.png", /* ... */ "pose10.png"]
+    },
+    {
+        name: "Accessory",
+        images: ["acc1.png", "acc2.png", /* ... */ "acc10.png"]
+    }
+    // Add more layers as needed
+];
+Canvas Rendering: Implement the drawing logic using the Canvas 2D API (drawImage). Ensure images are loaded properly before attempting to draw them to prevent errors. Handle image loading asynchronously.
+Styling: Provide basic CSS for layout and appearance, ensuring the selection controls and the canvas display are clear and usable.
+Optional Enhancements (Bonus):
+
+Default Selection: Display a default combination of images when the component first loads.
+Download Button: Add a button that allows the user to download the generated composite image from the canvas (e.g., as a PNG file using canvas.toDataURL()).
+Image Preloading: Preload images to improve responsiveness when the user makes selections.
+Error Handling: Basic handling for image loading errors.
+Deliverables:
+
+An HTML file containing the structure for the component (including the canvas and selection elements).
+A CSS file for styling the component.
+A JavaScript file containing the logic for:
+Defining the image data.
+Generating the selection UI elements dynamically based on the data.
+Handling user selections.
+Drawing the layered images onto the canvas.
+(Optional) Implementing enhancements like the download button.
+Please provide the code structured for clarity and ease of integration into a static HTML page. Use placeholder image URLs if actual ones are not available.
