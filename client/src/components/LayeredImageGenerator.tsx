@@ -34,43 +34,43 @@ const imageLayers: ImageLayer[] = [
     name: "Background",
     images: [
       {
-        url: "/images/backgrounds/sunset.jpg",
+        url: "/backgrounds/wewr.png",
         label: "Sunset Ocean"
       },
       {
-        url: "/images/backgrounds/futuristic-city.jpg",
+        url: "/backgrounds/ere.jpg",
         label: "Future Earth"
       },
       {
-        url: "/images/backgrounds/tokyo-night.jpg",
+        url: "/backgrounds/ewr.jpg",
         label: "Tokyo Nights"
       },
       {
-        url: "/images/backgrounds/race-track.jpg",
+        url: "/backgrounds/rwr.jpg",
         label: "Racing Circuit"
       },
       {
-        url: "/images/backgrounds/beach.jpg",
+        url: "/backgrounds/wee.jpg",
         label: "Tropical Beach"
       },
       {
-        url: "/images/backgrounds/flower-field.jpg",
+        url: "/backgrounds/weer.jpg",
         label: "Flower Meadow"
       },
       {
-        url: "/images/backgrounds/forest.jpg",
+        url: "/backgrounds/wew.jpg",
         label: "Forest Path"
       },
       {
-        url: "/images/backgrounds/mountain.jpg",
+        url: "/backgrounds/wre.jpg",
         label: "Mountain Peak"
       },
       {
-        url: "/images/backgrounds/trench.jpg",
+        url: "/backgrounds/wre.png",
         label: "Vintage War"
       },
       {
-        url: "/images/backgrounds/soldiers.jpg",
+        url: "/backgrounds/20250512_1319_Trench Soldiers_remix_01jv26wejqer1vbx83eeacfm89.png",
         label: "Trench Soldiers"
       }
     ]
