@@ -347,10 +347,10 @@ export function LayeredImageGenerator() {
       );
       
       // Draw resize handles on all four corners
-      const handleSize = 15;
+      const handleSize = 25; // Larger, more visible handles
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.strokeStyle = '#fbd743';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ef6a43'; // Orange color like the text
+      ctx.lineWidth = 3;
       
       // Top-left handle
       ctx.beginPath();
@@ -361,6 +361,12 @@ export function LayeredImageGenerator() {
         handleSize
       );
       ctx.fill();
+      ctx.stroke();
+      
+      // Draw diagonal lines in the top-left handle for better visibility
+      ctx.beginPath();
+      ctx.moveTo(layerObj.x + 5, layerObj.y + 5);
+      ctx.lineTo(layerObj.x + handleSize - 5, layerObj.y + handleSize - 5);
       ctx.stroke();
       
       // Top-right handle
@@ -374,6 +380,12 @@ export function LayeredImageGenerator() {
       ctx.fill();
       ctx.stroke();
       
+      // Draw diagonal lines in the top-right handle
+      ctx.beginPath();
+      ctx.moveTo(layerObj.x + layerObj.width - 5, layerObj.y + 5);
+      ctx.lineTo(layerObj.x + layerObj.width - handleSize + 5, layerObj.y + handleSize - 5);
+      ctx.stroke();
+      
       // Bottom-left handle
       ctx.beginPath();
       ctx.rect(
@@ -385,6 +397,12 @@ export function LayeredImageGenerator() {
       ctx.fill();
       ctx.stroke();
       
+      // Draw diagonal lines in the bottom-left handle
+      ctx.beginPath();
+      ctx.moveTo(layerObj.x + 5, layerObj.y + layerObj.height - 5);
+      ctx.lineTo(layerObj.x + handleSize - 5, layerObj.y + layerObj.height - handleSize + 5);
+      ctx.stroke();
+      
       // Bottom-right handle
       ctx.beginPath();
       ctx.rect(
@@ -394,6 +412,12 @@ export function LayeredImageGenerator() {
         handleSize
       );
       ctx.fill();
+      ctx.stroke();
+      
+      // Draw diagonal lines in the bottom-right handle
+      ctx.beginPath();
+      ctx.moveTo(layerObj.x + layerObj.width - 5, layerObj.y + layerObj.height - 5);
+      ctx.lineTo(layerObj.x + layerObj.width - handleSize + 5, layerObj.y + layerObj.height - handleSize + 5);
       ctx.stroke();
     });
   }, [layerObjects]);
@@ -569,9 +593,10 @@ export function LayeredImageGenerator() {
       if (isResizing && layerObjects[activeLayer]) {
         const layer = layerObjects[activeLayer];
         
-        // Get the delta movement
-        const deltaX = x - layer.dragStartX;
-        const deltaY = y - layer.dragStartY;
+        // Get the delta movement - apply a scaling factor to make resizing more responsive
+        const scaleFactor = 1.5; // Makes resizing more dramatic with less mouse movement
+        const deltaX = (x - layer.dragStartX) * scaleFactor;
+        const deltaY = (y - layer.dragStartY) * scaleFactor;
         
         // Variables to store new position and dimensions
         let newX = layer.x;
@@ -581,70 +606,51 @@ export function LayeredImageGenerator() {
         
         const aspectRatio = layer.originalWidth / layer.originalHeight;
         
+        console.log("Resizing from corner:", layer.activeCorner, "with deltas:", deltaX, deltaY);
+        
         // Handle different corners
         switch (layer.activeCorner) {
           case Corner.TopLeft:
-            // Update position and size inversely
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-              // Width change is dominant
-              newWidth = Math.max(50, layer.width - deltaX);
-              newHeight = newWidth / aspectRatio;
-              newX = layer.x + (layer.width - newWidth);
-              newY = layer.y + (layer.height - newHeight);
-            } else {
-              // Height change is dominant
-              newHeight = Math.max(50, layer.height - deltaY);
-              newWidth = newHeight * aspectRatio;
-              newX = layer.x + (layer.width - newWidth);
-              newY = layer.y + (layer.height - newHeight);
-            }
+            // Update position and size inversely - simplify logic for more consistent behavior
+            // Use the larger of deltaX or deltaY for more responsive resizing
+            const topLeftDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX < 0 ? -1 : 1);
+            newWidth = Math.max(50, layer.width - topLeftDelta);
+            newHeight = newWidth / aspectRatio;
+            newX = layer.x + (layer.width - newWidth);
+            newY = layer.y + (layer.height - newHeight);
             break;
             
           case Corner.TopRight:
-            // Update y-position and size
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-              // Width change is dominant
-              newWidth = Math.max(50, layer.width + deltaX);
-              newHeight = newWidth / aspectRatio;
-              newY = layer.y + (layer.height - newHeight);
-            } else {
-              // Height change is dominant
-              newHeight = Math.max(50, layer.height - deltaY);
-              newWidth = newHeight * aspectRatio;
-              newY = layer.y + (layer.height - newHeight);
-            }
+            // Update y-position and size - simplify for more responsive behavior
+            const topRightDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX > 0 ? 1 : -1);
+            newWidth = Math.max(50, layer.width + topRightDelta);
+            newHeight = newWidth / aspectRatio;
+            newY = layer.y + (layer.height - newHeight);
             break;
             
           case Corner.BottomLeft:
-            // Update x-position and size
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-              // Width change is dominant
-              newWidth = Math.max(50, layer.width - deltaX);
-              newHeight = newWidth / aspectRatio;
-              newX = layer.x + (layer.width - newWidth);
-            } else {
-              // Height change is dominant
-              newHeight = Math.max(50, layer.height + deltaY);
-              newWidth = newHeight * aspectRatio;
-              newX = layer.x + (layer.width - newWidth);
-            }
+            // Update x-position and size - simplify for more responsive behavior
+            const bottomLeftDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX < 0 ? -1 : 1);
+            newWidth = Math.max(50, layer.width - bottomLeftDelta);
+            newHeight = newWidth / aspectRatio;
+            newX = layer.x + (layer.width - newWidth);
             break;
             
           case Corner.BottomRight:
-            // Simple resize from bottom-right
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-              // Width change is dominant
-              newWidth = Math.max(50, layer.width + deltaX);
-              newHeight = newWidth / aspectRatio;
-            } else {
-              // Height change is dominant
-              newHeight = Math.max(50, layer.height + deltaY);
-              newWidth = newHeight * aspectRatio;
-            }
+            // Simple resize from bottom-right - make this most responsive
+            const bottomRightDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX > 0 ? 1 : -1);
+            newWidth = Math.max(50, layer.width + bottomRightDelta);
+            newHeight = newWidth / aspectRatio;
             break;
+            
+          default:
+            // If no corner is active (should not happen), just return
+            return;
         }
         
-        console.log("Resizing to:", newWidth, newHeight, "at position:", newX, newY);
+        console.log("Resizing to:", 
+          Math.round(newWidth), "x", Math.round(newHeight), 
+          "at position:", Math.round(newX), ",", Math.round(newY));
         
         // Update layer dimensions and position
         setLayerObjects(prev => ({
@@ -783,9 +789,10 @@ export function LayeredImageGenerator() {
       if (!layer) return;
       
       if (isResizing) {
-        // Get the delta movement
-        const deltaX = x - layer.dragStartX;
-        const deltaY = y - layer.dragStartY;
+        // Apply a higher scaling factor for touch - makes resizing even more responsive on mobile
+        const scaleFactor = 2.0; 
+        const deltaX = (x - layer.dragStartX) * scaleFactor;
+        const deltaY = (y - layer.dragStartY) * scaleFactor;
         
         // Variables to store new position and dimensions
         let newX = layer.x;
@@ -795,68 +802,46 @@ export function LayeredImageGenerator() {
         
         const aspectRatio = layer.originalWidth / layer.originalHeight;
         
-        // Handle different corners
+        console.log("Touch resizing from corner:", layer.activeCorner);
+        
+        // Handle different corners with simplified logic for better response
         switch (layer.activeCorner) {
           case Corner.TopLeft:
-            // Update position and size inversely
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-              // Width change is dominant
-              newWidth = Math.max(50, layer.width - deltaX);
-              newHeight = newWidth / aspectRatio;
-              newX = layer.x + (layer.width - newWidth);
-              newY = layer.y + (layer.height - newHeight);
-            } else {
-              // Height change is dominant
-              newHeight = Math.max(50, layer.height - deltaY);
-              newWidth = newHeight * aspectRatio;
-              newX = layer.x + (layer.width - newWidth);
-              newY = layer.y + (layer.height - newHeight);
-            }
+            // Use the maximum delta for more responsive touch resize
+            const topLeftDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX < 0 ? -1 : 1);
+            newWidth = Math.max(50, layer.width - topLeftDelta);
+            newHeight = newWidth / aspectRatio;
+            newX = layer.x + (layer.width - newWidth);
+            newY = layer.y + (layer.height - newHeight);
             break;
             
           case Corner.TopRight:
-            // Update y-position and size
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-              // Width change is dominant
-              newWidth = Math.max(50, layer.width + deltaX);
-              newHeight = newWidth / aspectRatio;
-              newY = layer.y + (layer.height - newHeight);
-            } else {
-              // Height change is dominant
-              newHeight = Math.max(50, layer.height - deltaY);
-              newWidth = newHeight * aspectRatio;
-              newY = layer.y + (layer.height - newHeight);
-            }
+            const topRightDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX > 0 ? 1 : -1);
+            newWidth = Math.max(50, layer.width + topRightDelta);
+            newHeight = newWidth / aspectRatio;
+            newY = layer.y + (layer.height - newHeight);
             break;
             
           case Corner.BottomLeft:
-            // Update x-position and size
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-              // Width change is dominant
-              newWidth = Math.max(50, layer.width - deltaX);
-              newHeight = newWidth / aspectRatio;
-              newX = layer.x + (layer.width - newWidth);
-            } else {
-              // Height change is dominant
-              newHeight = Math.max(50, layer.height + deltaY);
-              newWidth = newHeight * aspectRatio;
-              newX = layer.x + (layer.width - newWidth);
-            }
+            const bottomLeftDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX < 0 ? -1 : 1);
+            newWidth = Math.max(50, layer.width - bottomLeftDelta);
+            newHeight = newWidth / aspectRatio;
+            newX = layer.x + (layer.width - newWidth);
             break;
             
           case Corner.BottomRight:
-            // Simple resize from bottom-right
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-              // Width change is dominant
-              newWidth = Math.max(50, layer.width + deltaX);
-              newHeight = newWidth / aspectRatio;
-            } else {
-              // Height change is dominant
-              newHeight = Math.max(50, layer.height + deltaY);
-              newWidth = newHeight * aspectRatio;
-            }
+            // Simple resize from bottom-right - very common on mobile
+            const bottomRightDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY)) * (deltaX > 0 ? 1 : -1);
+            newWidth = Math.max(50, layer.width + bottomRightDelta);
+            newHeight = newWidth / aspectRatio;
             break;
+            
+          default:
+            return;
         }
+        
+        console.log("Touch resizing to:", 
+          Math.round(newWidth), "x", Math.round(newHeight));
         
         // Update layer dimensions and position
         setLayerObjects(prev => ({
