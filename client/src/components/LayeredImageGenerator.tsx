@@ -159,9 +159,6 @@ export function LayeredImageGenerator() {
 
   // State for tracking open dropdowns
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  
-  // Function to get URL from image item
-  const getImageUrl = (item: ImageItem): string => item.url;
 
   // Initialize selected images
   useEffect(() => {
@@ -203,10 +200,13 @@ export function LayeredImageGenerator() {
     imageLayers.forEach(layer => {
       preloadedImages[layer.name] = [];
       
-      layer.images.forEach((url, index) => {
+      layer.images.forEach((image, index) => {
+        const imageUrl = image.url;
+        const imageLabel = image.label;
+        
         const promise = new Promise<void>((resolve) => {
           const img = new Image();
-          img.src = url;
+          img.src = imageUrl;
           
           img.onload = () => {
             preloadedImages[layer.name][index] = img;
@@ -216,8 +216,8 @@ export function LayeredImageGenerator() {
           img.onerror = () => {
             // Instead of rejecting, just log and resolve
             // This way, the app will still function even if some images fail
-            console.error(`Failed to load image: ${url}`);
-            failedImages.push(url);
+            console.error(`Failed to load image: ${imageUrl}`);
+            failedImages.push(imageUrl);
             
             // Create a fallback image with a color based on the layer
             const fallbackImg = new Image();
@@ -242,7 +242,7 @@ export function LayeredImageGenerator() {
               ctx.fillStyle = '#FFFFFF';
               ctx.font = '20px Arial';
               ctx.textAlign = 'center';
-              ctx.fillText(`${layer.name} ${index + 1}`, 200, 200);
+              ctx.fillText(imageLabel || `${layer.name} ${index + 1}`, 200, 200);
               
               fallbackImg.src = canvas.toDataURL('image/png');
               preloadedImages[layer.name][index] = fallbackImg;
@@ -399,7 +399,7 @@ export function LayeredImageGenerator() {
                   <div id={`dropdown-${layer.name}`} className={`${openDropdown === layer.name ? 'block' : 'hidden'} absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border border-neutral-200`}>
                     <div className="max-h-60 overflow-y-auto p-3">
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        {layer.images.map((imageUrl, imageIndex) => (
+                        {layer.images.map((image, imageIndex) => (
                           <label key={imageIndex} className="cursor-pointer layer-option">
                             <input 
                               type="radio" 
@@ -416,8 +416,8 @@ export function LayeredImageGenerator() {
                             <div className="border-2 border-transparent hover:border-primary rounded-md overflow-hidden transition-all p-1">
                               <div className="aspect-square bg-neutral-100 rounded flex items-center justify-center">
                                 <img 
-                                  src={imageUrl} 
-                                  alt={`${layer.name} option ${imageIndex + 1}`}
+                                  src={image.url} 
+                                  alt={image.label || `${layer.name} option ${imageIndex + 1}`}
                                   className="w-full h-full object-contain"
                                 />
                               </div>
@@ -434,7 +434,7 @@ export function LayeredImageGenerator() {
                   <div className="w-16 h-16 bg-white rounded shadow-sm">
                     {loadedImages[layer.name] && selectedImages[layer.name] !== undefined && (
                       <img 
-                        src={layer.images[selectedImages[layer.name]]}
+                        src={layer.images[selectedImages[layer.name]]?.url}
                         alt={`Selected ${layer.name}`}
                         className="w-full h-full object-contain"
                       />
