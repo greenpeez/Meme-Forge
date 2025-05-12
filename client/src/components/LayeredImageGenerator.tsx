@@ -659,8 +659,40 @@ export function LayeredImageGenerator() {
               </div>
             )}
             
-            {/* Spacer div to create separation between canvas and button */}
-            <div className="h-8"></div>
+            {/* Text Caption Controls */}
+            <div className="w-full max-w-md mb-4">
+              <h2 className="text-lg font-medium mb-3 text-secondary">Text Captions</h2>
+              
+              {/* Top Text Input */}
+              <div className="mb-3">
+                <label htmlFor="top-text" className="block text-sm font-medium mb-1 text-neutral-700">
+                  Top Text
+                </label>
+                <input
+                  id="top-text"
+                  type="text"
+                  value={topText}
+                  onChange={(e) => setTopText(e.target.value)}
+                  placeholder="Enter top text"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+              
+              {/* Bottom Text Input */}
+              <div>
+                <label htmlFor="bottom-text" className="block text-sm font-medium mb-1 text-neutral-700">
+                  Bottom Text
+                </label>
+                <input
+                  id="bottom-text"
+                  type="text"
+                  value={bottomText}
+                  onChange={(e) => setBottomText(e.target.value)}
+                  placeholder="Enter bottom text"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+            </div>
             
             {/* Download button */}
             <div className="flex justify-center mt-4 mb-6">
