@@ -436,14 +436,14 @@ export function LayeredImageGenerator() {
     
     if (!hasSelectedImages && !isLoading) {
       // Draw prompt text when no images are selected
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillStyle = '#000000';
       ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('Select images from the panels below', canvas.width / 2, canvas.height / 2 - 30);
       
       // Add arrow icon
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillStyle = '#000000';
       ctx.beginPath();
       const arrowSize = 30;
       const arrowX = canvas.width / 2;
