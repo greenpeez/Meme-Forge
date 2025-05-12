@@ -11,15 +11,6 @@ type ImageLayer = {
   images: ImageItem[];
 };
 
-// Define corner positions for resizing
-enum Corner {
-  TopLeft = 'TopLeft',
-  TopRight = 'TopRight',
-  BottomLeft = 'BottomLeft',
-  BottomRight = 'BottomRight',
-  None = 'None'
-}
-
 // Define selected layer object structure
 type LayerObject = {
   url: string;
@@ -29,13 +20,6 @@ type LayerObject = {
   height: number;
   originalWidth: number;
   originalHeight: number;
-  isDragging: boolean;
-  isResizing: boolean;
-  activeCorner: Corner;
-  dragStartX: number;
-  dragStartY: number;
-  cornerOffsetX?: number; // Offset from cursor to actual corner
-  cornerOffsetY?: number; // Offset from cursor to actual corner
 };
 
 // Define the image layers with more descriptive names
@@ -264,32 +248,37 @@ export function LayeredImageGenerator() {
       const cachedImage = imageCache.current[imageItem.url];
       if (!cachedImage) return;
       
-      // Check if we already have this layer positioned
-      const existingLayer = layerObjects[layerName];
+      // Auto-fit image to canvas - calculate scaled dimensions to fit within canvas
+      const maxWidth = canvas.width - 40; // Leave some padding
+      const maxHeight = canvas.height - 40;
       
-      if (existingLayer && existingLayer.url === imageItem.url) {
-        // Keep existing position and size
-        updatedLayerObjects[layerName] = existingLayer;
-      } else {
-        // Create new layer object centered on canvas
-        const x = (canvas.width - cachedImage.width) / 2;
-        const y = (canvas.height - cachedImage.height) / 2;
-        
-        updatedLayerObjects[layerName] = {
-          url: imageItem.url,
-          x,
-          y,
-          width: cachedImage.width,
-          height: cachedImage.height,
-          originalWidth: cachedImage.width,
-          originalHeight: cachedImage.height,
-          isDragging: false,
-          isResizing: false,
-          activeCorner: Corner.None,
-          dragStartX: 0,
-          dragStartY: 0
-        };
-      }
+      // Calculate the scaling factor to fit image in canvas
+      const widthRatio = maxWidth / cachedImage.width;
+      const heightRatio = maxHeight / cachedImage.height;
+      const scaleFactor = Math.min(widthRatio, heightRatio);
+      
+      // Calculate dimensions that maintain aspect ratio and fit within canvas
+      const scaledWidth = cachedImage.width * scaleFactor;
+      const scaledHeight = cachedImage.height * scaleFactor;
+      
+      // Center the image on canvas
+      const x = (canvas.width - scaledWidth) / 2;
+      const y = (canvas.height - scaledHeight) / 2;
+      
+      console.log("Auto-fitting image with dimensions:", 
+        cachedImage.width, "x", cachedImage.height, 
+        "to", scaledWidth, "x", scaledHeight);
+      
+      // Create or update layer object
+      updatedLayerObjects[layerName] = {
+        url: imageItem.url,
+        x,
+        y,
+        width: scaledWidth,
+        height: scaledHeight,
+        originalWidth: cachedImage.width,
+        originalHeight: cachedImage.height
+      };
     });
     
     setLayerObjects(updatedLayerObjects);
@@ -347,80 +336,6 @@ export function LayeredImageGenerator() {
         layerObj.width,
         layerObj.height
       );
-      
-      // Draw resize handles on all four corners
-      const handleSize = 25; // Larger, more visible handles
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.strokeStyle = '#ef6a43'; // Orange color like the text
-      ctx.lineWidth = 3;
-      
-      // Top-left handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x,
-        layerObj.y,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Draw diagonal lines in the top-left handle for better visibility
-      ctx.beginPath();
-      ctx.moveTo(layerObj.x + 5, layerObj.y + 5);
-      ctx.lineTo(layerObj.x + handleSize - 5, layerObj.y + handleSize - 5);
-      ctx.stroke();
-      
-      // Top-right handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x + layerObj.width - handleSize,
-        layerObj.y,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Draw diagonal lines in the top-right handle
-      ctx.beginPath();
-      ctx.moveTo(layerObj.x + layerObj.width - 5, layerObj.y + 5);
-      ctx.lineTo(layerObj.x + layerObj.width - handleSize + 5, layerObj.y + handleSize - 5);
-      ctx.stroke();
-      
-      // Bottom-left handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x,
-        layerObj.y + layerObj.height - handleSize,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Draw diagonal lines in the bottom-left handle
-      ctx.beginPath();
-      ctx.moveTo(layerObj.x + 5, layerObj.y + layerObj.height - 5);
-      ctx.lineTo(layerObj.x + handleSize - 5, layerObj.y + layerObj.height - handleSize + 5);
-      ctx.stroke();
-      
-      // Bottom-right handle
-      ctx.beginPath();
-      ctx.rect(
-        layerObj.x + layerObj.width - handleSize,
-        layerObj.y + layerObj.height - handleSize,
-        handleSize,
-        handleSize
-      );
-      ctx.fill();
-      ctx.stroke();
-      
-      // Draw diagonal lines in the bottom-right handle
-      ctx.beginPath();
-      ctx.moveTo(layerObj.x + layerObj.width - 5, layerObj.y + layerObj.height - 5);
-      ctx.lineTo(layerObj.x + layerObj.width - handleSize + 5, layerObj.y + layerObj.height - handleSize + 5);
-      ctx.stroke();
     });
   }, [layerObjects]);
 
