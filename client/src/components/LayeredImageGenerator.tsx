@@ -395,7 +395,7 @@ export function LayeredImageGenerator() {
     if (!canvasRef.current) return;
     
     const canvas = canvasRef.current;
-    const dataUrl = canvas.toDataURL('image/png');
+    const dataUrl = canvas.toDataURL('image/png', 1.0);
     
     const link = document.createElement('a');
     link.href = dataUrl;
@@ -411,7 +411,7 @@ export function LayeredImageGenerator() {
 
       <div className="flex flex-col space-y-6">
         {/* Canvas Display Panel */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-transparent p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-medium mb-4 text-secondary border-b border-neutral-200 pb-2">Preview</h2>
           
           <div className="flex flex-col items-center">
@@ -466,7 +466,7 @@ export function LayeredImageGenerator() {
         </div>
         
         {/* Layer Selection Panel */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-transparent p-6 rounded-lg shadow-md">
           {/* Layer Selection Controls */}
           <div className="grid gap-4 md:grid-cols-3">
             {imageLayers.map((layer) => (
@@ -490,7 +490,7 @@ export function LayeredImageGenerator() {
                   {/* Dropdown content */}
                   <div 
                     id={`dropdown-${layer.name}`} 
-                    className={`${openDropdown === layer.name ? 'block' : 'hidden'} absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border border-neutral-200`}
+                    className={`${openDropdown === layer.name ? 'block' : 'hidden'} absolute z-20 mt-2 w-full bg-transparent rounded-md shadow-lg border border-neutral-200`}
                   >
                     <div className="max-h-60 overflow-y-auto p-3">
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -505,7 +505,7 @@ export function LayeredImageGenerator() {
                               onChange={() => handleSelectLayer(layer.name, index)}
                             />
                             <div className="border-2 border-transparent hover:border-primary rounded-md overflow-hidden transition-all p-1">
-                              <div className="aspect-square bg-neutral-100 rounded flex items-center justify-center">
+                              <div className="aspect-square bg-transparent rounded flex items-center justify-center">
                                 <img 
                                   src={image.url} 
                                   alt={image.label}
@@ -522,7 +522,7 @@ export function LayeredImageGenerator() {
                 
                 {/* Selected thumbnail */}
                 <div className="mt-2 p-2 flex justify-center border border-primary/20 rounded-md bg-primary/5">
-                  <div className="w-16 h-16 bg-white rounded shadow-sm flex items-center justify-center">
+                  <div className="w-16 h-16 bg-transparent rounded shadow-sm flex items-center justify-center">
                     {selectedIndexes[layer.name] !== undefined ? (
                       <img 
                         src={layer.images[selectedIndexes[layer.name]]?.url}
