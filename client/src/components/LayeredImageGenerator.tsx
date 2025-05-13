@@ -69,8 +69,8 @@ const imageLayers: ImageLayer[] = [
     name: "Pose",
     images: [
       {
-        url: "/poses/etyr.png",
-        label: "Happy Elephant"
+        url: "/poses/cool_elephant.png",
+        label: "Cool Elephant"
       },
       {
         url: "/poses/doritos_elephant.png",
