@@ -368,37 +368,7 @@ export function LayeredImageGenerator() {
     
     // Check if there are any layers to display
     if (Object.keys(layerObjects).length === 0) {
-      // Draw empty state message
-      ctx.fillStyle = '#ef6a43'; // Orange text in the app's theme
-      ctx.font = 'bold 24px Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('Add an image', canvas.width / 2, canvas.height / 2 - 30);
-      
-      // Add plus icon (in the same orange theme color)
-      ctx.beginPath();
-      ctx.fillStyle = '#ef6a43'; // Keep the plus sign orange as well
-      const plusSize = 30;
-      const plusThickness = 6;
-      const plusX = canvas.width / 2;
-      const plusY = canvas.height / 2 + 20;
-      
-      // Draw plus shape (horizontal line)
-      ctx.fillRect(
-        plusX - plusSize/2, 
-        plusY - plusThickness/2, 
-        plusSize, 
-        plusThickness
-      );
-      
-      // Draw plus shape (vertical line)
-      ctx.fillRect(
-        plusX - plusThickness/2, 
-        plusY - plusSize/2, 
-        plusThickness, 
-        plusSize
-      );
-      
+      // Empty canvas with no message or icon
       return;
     }
     
