@@ -136,6 +136,14 @@ const imageLayers: ImageLayer[] = [
       {
         url: "/accessories/red_backpack.png",
         label: "Red Backpack"
+      },
+      {
+        url: "/accessories/pixel_unicorn.png",
+        label: "Pixel Unicorn"
+      },
+      {
+        url: "/accessories/cool_guy.png",
+        label: "Cool Guy"
       }
     ]
   }
