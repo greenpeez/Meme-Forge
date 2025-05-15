@@ -562,10 +562,45 @@ export function LayeredImageGenerator() {
     // Convert the high-res canvas to a data URL
     const dataUrl = highResCanvas.toDataURL('image/png', 1.0);
     
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = 'bani-meme-transparent.png';
-    link.click();
+    // Create timestamp for unique filename
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `bani_meme_${timestamp}.png`;
+    
+    // Handle download for both mobile and desktop
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      // For mobile devices, open image in new tab for saving to gallery
+      const image = new Image();
+      image.src = dataUrl;
+      
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(
+          `<html>
+            <head>
+              <title>Bani Meme - Long Press to Save</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body { margin: 0; padding: 20px; text-align: center; background: black; color: white; font-family: Arial, sans-serif; }
+                img { max-width: 100%; height: auto; margin-bottom: 20px; }
+                p { margin: 20px 0; }
+              </style>
+            </head>
+            <body>
+              <p>Long press on the image to save to your gallery</p>
+              <img src="${dataUrl}" alt="Bani Meme" download="${filename}">
+              <p>Image name: ${filename}</p>
+            </body>
+          </html>`
+        );
+        newTab.document.close();
+      }
+    } else {
+      // For desktop, use traditional download approach
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = filename;
+      link.click();
+    }
   };
   
   // Helper function to find the bounding box of all visible content
