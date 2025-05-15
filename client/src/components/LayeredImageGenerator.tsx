@@ -566,40 +566,31 @@ export function LayeredImageGenerator() {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `bani_meme_${timestamp}.png`;
     
-    // Handle download for both mobile and desktop
-    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      // For mobile devices, open image in new tab for saving to gallery
-      const image = new Image();
-      image.src = dataUrl;
-      
-      const newTab = window.open();
-      if (newTab) {
-        newTab.document.write(
-          `<html>
-            <head>
-              <title>Bani Meme - Long Press to Save</title>
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <style>
-                body { margin: 0; padding: 20px; text-align: center; background: black; color: white; font-family: Arial, sans-serif; }
-                img { max-width: 100%; height: auto; margin-bottom: 20px; }
-                p { margin: 20px 0; }
-              </style>
-            </head>
-            <body>
-              <p>Long press on the image to save to your gallery</p>
-              <img src="${dataUrl}" alt="Bani Meme" download="${filename}">
-              <p>Image name: ${filename}</p>
-            </body>
-          </html>`
-        );
-        newTab.document.close();
-      }
-    } else {
-      // For desktop, use traditional download approach
+    // Use direct download approach for all devices
+    try {
+      // Create an invisible anchor element
       const link = document.createElement('a');
       link.href = dataUrl;
       link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      
+      // Trigger click to start download
       link.click();
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(dataUrl);
+      }, 100);
+      
+      // On iOS Safari - show a message about where to find the image
+      if (/iPhone|iPad|iPod/i.test(navigator.userAgent) && /Safari/i.test(navigator.userAgent)) {
+        alert("Image download started. On iOS, check your Photos app or Files app to access your downloaded image.");
+      }
+    } catch (err) {
+      console.error("Error downloading image:", err);
+      alert("There was a problem downloading your image. Please try again.");
     }
   };
   
