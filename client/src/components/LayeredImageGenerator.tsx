@@ -168,11 +168,6 @@ export function LayeredImageGenerator() {
   // Dropdown state
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   
-  // Long press detection variables
-  const [touchStartTime, setTouchStartTime] = useState<number | null>(null);
-  const longPressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const LONG_PRESS_DURATION = 500; // ms
-  
   // Text caption states
   const [topText, setTopText] = useState<string>('');
   const [bottomText, setBottomText] = useState<string>('');
@@ -567,65 +562,10 @@ export function LayeredImageGenerator() {
     // Convert the high-res canvas to a data URL
     const dataUrl = highResCanvas.toDataURL('image/png', 1.0);
     
-    // Create timestamp for unique filename
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `bani_meme_${timestamp}.png`;
-    
-    // Use direct download approach for all devices
-    try {
-      // Create an invisible anchor element
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = filename;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      
-      // Trigger click to start download
-      link.click();
-      
-      // Clean up
-      setTimeout(() => {
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(dataUrl);
-      }, 100);
-      
-      // On iOS Safari - show a message about where to find the image
-      if (/iPhone|iPad|iPod/i.test(navigator.userAgent) && /Safari/i.test(navigator.userAgent)) {
-        alert("Image download started. On iOS, check your Photos app or Files app to access your downloaded image.");
-      }
-    } catch (err) {
-      console.error("Error downloading image:", err);
-      alert("There was a problem downloading your image. Please try again.");
-    }
-  };
-  
-  // Handle long press on canvas to enable direct saving on mobile devices
-  const handleCanvasLongPress = () => {
-    if (!canvasRef.current || Object.keys(layerObjects).length === 0) return;
-    
-    // Only proceed on mobile devices
-    if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
-    
-    // Get the canvas data URL
-    const dataUrl = canvasRef.current.toDataURL('image/png', 1.0);
-    
-    // Create timestamp for unique filename
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `bani_meme_${timestamp}.png`;
-    
-    // Create a temporary, invisible anchor element with download attribute
     const link = document.createElement('a');
     link.href = dataUrl;
-    link.download = filename;
-    link.style.display = 'none';
-    document.body.appendChild(link);
+    link.download = 'bani-meme-transparent.png';
     link.click();
-    
-    // Clean up
-    setTimeout(() => {
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(dataUrl);
-    }, 100);
   };
   
   // Helper function to find the bounding box of all visible content
@@ -689,42 +629,7 @@ export function LayeredImageGenerator() {
                 width="600" 
                 height="600" 
                 className={`max-w-full h-auto ${isLoading ? 'opacity-50' : 'opacity-100'} bg-transparent`}
-                onTouchStart={(e) => {
-                  // Start timing the touch
-                  setTouchStartTime(Date.now());
-                  
-                  // Set a timeout for the long press
-                  longPressTimeoutRef.current = setTimeout(() => {
-                    handleCanvasLongPress();
-                  }, LONG_PRESS_DURATION);
-                }}
-                onTouchEnd={() => {
-                  // Clear the long press timeout
-                  if (longPressTimeoutRef.current) {
-                    clearTimeout(longPressTimeoutRef.current);
-                    longPressTimeoutRef.current = null;
-                  }
-                  setTouchStartTime(null);
-                }}
-                onTouchMove={() => {
-                  // If user moves while touching, cancel the long press
-                  if (longPressTimeoutRef.current) {
-                    clearTimeout(longPressTimeoutRef.current);
-                    longPressTimeoutRef.current = null;
-                  }
-                }}
-                onContextMenu={(e) => {
-                  // Prevent context menu on right-click
-                  e.preventDefault();
-                  return false;
-                }}
               />
-              {/* Subtle indicator for mobile users */}
-              {/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && Object.keys(layerObjects).length > 0 && (
-                <div className="text-xs text-center text-neutral-500 mt-1">
-                  Long press on image to save
-                </div>
-              )}
             </div>
             
             {/* Loading indicator */}
