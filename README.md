@@ -1,6 +1,6 @@
 # Bani Meme Generator
 
-A dynamic, interactive web application for creating custom layered images and memes. Mix and match backgrounds, poses, and charms to build unique profile pictures with customizable text captions.
+An interactive web application for creating custom layered images and memes. Mix and match backgrounds, poses, and charms to build unique profile pictures with customizable text captions.
 
 ## Features
 
