@@ -143,7 +143,7 @@ The application is designed to run on any modern web hosting platform. The Expre
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgments
+## Notes
 
 - Built with modern web technologies for optimal performance
 - Responsive design principles for cross-device compatibility
